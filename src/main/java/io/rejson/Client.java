@@ -24,8 +24,10 @@ public class Client {
 
     private enum Command implements ProtocolCommand {
 
+        DEL("JSON.DEL"),
+        GET("JSON.GET"),
         SET("JSON.SET"),
-        GET("JSON.GET");
+        TYPE("JSON.TYPE");
         private final byte[] raw;
 
         Command(String alt) {
@@ -37,22 +39,24 @@ public class Client {
         }
     }
 
-    private void assertReplyNotError(String str) throws Exception {
+    private void assertReplyNotError(final String str) throws Exception {
         if (str.startsWith("-ERR"))
             throw new Exception(str.substring(5));
     }
 
-    private void assertReplyOK(String str) throws Exception {
+    private void assertReplyOK(final String str) throws Exception {
         if (!str.equals("OK"))
             throw new Exception(str);
     }
 
     /**
      * Create a new client
-     * @param host the redis host
-     * @param port the redis port
+     * @param host the Redis host
+     * @param port the Redis port
+     * @param timeout the timeout
+     * @param poolSize the pool's size
      */
-    public Client(String host, int port, int timeout, int poolSize) {
+    public Client(final String host, final int port, final int timeout, final int poolSize) {
         JedisPoolConfig conf = new JedisPoolConfig();
         conf.setMaxTotal(poolSize);
         conf.setTestOnBorrow(false);
@@ -69,9 +73,55 @@ public class Client {
 
     }
 
-    public Client(String host, int port) {
+    public Client(final String host, final int port) {
         this(host, port, 500, 100);
     }
+
+    /**
+     * Deletes a path
+     * @param key the key name
+     * @param path a path in the object
+     * @return the number of paths deleted (0 or 1)
+     */
+    public Long del(final String key, final String path) throws Exception {
+        Jedis conn = _conn();
+        ArrayList<byte[]> args = new ArrayList(3);
+
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(path));
+
+        Long rep = conn.getClient()
+                .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
+                .getIntegerReply();
+        conn.close();
+
+        return rep;
+    }
+
+    /**
+     * Gets an object
+     * @param key the key name
+     * @param path a path in the object
+     * @return the requested object
+     */
+    public Object get(final String key, final String path) throws Exception {
+        // TODO: need the variadic paths variant?
+        Jedis conn = _conn();
+        ArrayList<byte[]> args = new ArrayList(2);
+
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(path));
+
+        String rep = conn.getClient()
+                .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
+                .getBulkReply();
+        conn.close();
+
+        assertReplyNotError(rep);
+        return gson.fromJson(rep, Object.class);
+    }
+
+    // TODO: add support for JSON.MGET
 
     /**
      * Sets an object
@@ -79,13 +129,14 @@ public class Client {
      * @param path a path in the object
      * @param object the Java object to store
      */
-    public void set(String key, String path, Object object) throws Exception {
+    public void set(final String key, final String path, final Object object) throws Exception {
+        // TODO: support NX|XX flags
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(3);
 
-        args.add(key.getBytes());
-        args.add(path.getBytes());
-        args.add(gson.toJson(object).getBytes());
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(path));
+        args.add(SafeEncoder.encode(gson.toJson(object)));
 
         String status = conn.getClient()
                 .sendCommand(Command.SET, args.toArray(new byte[args.size()][]))
@@ -96,25 +147,43 @@ public class Client {
     }
 
     /**
-     * Gets an object
+     * Gets the class of an object
      * @param key the key name
      * @param path a path in the object
-     * @return the requested object
+     * @return the Java class of the requested object
      */
-    public Object get(String key, String path) throws Exception {
+    public Class<? extends Object> type(final String key, final String path) throws Exception {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
-        args.add(key.getBytes());
-        args.add(path.getBytes());
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(path));
 
         String rep = conn.getClient()
-                .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
+                .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]))
                 .getBulkReply();
         conn.close();
 
         assertReplyNotError(rep);
-        return gson.fromJson(rep, Object.class);
+
+        switch (rep) {
+            case "null":
+                return null;
+            case "boolean":
+                return boolean.class;
+            case "integer":
+                return int.class;
+            case "number":
+                return float.class;
+            case "string":
+                return String.class;
+            case "object":
+                return Object.class;
+            case "array":
+                return List.class;
+            default:
+                throw new Exception(rep);
+        }
     }
 
 }
