@@ -1,7 +1,5 @@
 package io.rejson;
 
-import io.rejson.Path;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -103,16 +101,17 @@ public class Client {
     /**
      * Gets an object
      * @param key the key name
-     * @param path a path in the object
+     * @param paths a path in the object
      * @return the requested object
      */
-    public Object get(final String key, final Path path) throws Exception {
-        // TODO: need the variadic paths variant?
+    public Object get(final String key, final Path... paths) throws Exception {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path.toString()));
+        for (Path p :paths) {
+            args.add(SafeEncoder.encode(p.toString()));
+        }
 
         String rep = conn.getClient()
                 .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
