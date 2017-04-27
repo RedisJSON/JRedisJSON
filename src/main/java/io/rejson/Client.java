@@ -1,5 +1,7 @@
 package io.rejson;
 
+import io.rejson.Path;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -83,12 +85,12 @@ public class Client {
      * @param path a path in the object
      * @return the number of paths deleted (0 or 1)
      */
-    public Long del(final String key, final String path) throws Exception {
+    public Long del(final String key, final Path path) throws Exception {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(3);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path));
+        args.add(SafeEncoder.encode(path.toString()));
 
         Long rep = conn.getClient()
                 .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
@@ -104,13 +106,13 @@ public class Client {
      * @param path a path in the object
      * @return the requested object
      */
-    public Object get(final String key, final String path) throws Exception {
+    public Object get(final String key, final Path path) throws Exception {
         // TODO: need the variadic paths variant?
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path));
+        args.add(SafeEncoder.encode(path.toString()));
 
         String rep = conn.getClient()
                 .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
@@ -129,13 +131,13 @@ public class Client {
      * @param path a path in the object
      * @param object the Java object to store
      */
-    public void set(final String key, final String path, final Object object) throws Exception {
+    public void set(final String key, final Path path, final Object object) throws Exception {
         // TODO: support NX|XX flags
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(3);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path));
+        args.add(SafeEncoder.encode(path.toString()));
         args.add(SafeEncoder.encode(gson.toJson(object)));
 
         String status = conn.getClient()
@@ -152,12 +154,12 @@ public class Client {
      * @param path a path in the object
      * @return the Java class of the requested object
      */
-    public Class<? extends Object> type(final String key, final String path) throws Exception {
+    public Class<? extends Object> type(final String key, final Path path) throws Exception {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path));
+        args.add(SafeEncoder.encode(path.toString()));
 
         String rep = conn.getClient()
                 .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]))

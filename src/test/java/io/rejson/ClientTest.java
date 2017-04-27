@@ -26,8 +26,8 @@ public class ClientTest {
     public void set() throws Exception {
         c._conn().flushDB();
 
-        c.set("null", ".", null);
-        c.set("foobar", ".", new FooBarObject());
+        c.set("null", Path.RootPath(), null);
+        c.set("foobar", Path.RootPath(), new FooBarObject());
     }
 
     @Test(expected = Exception.class)
@@ -35,50 +35,50 @@ public class ClientTest {
         c._conn().flushDB();
 
         // should error on non root path for new key
-        c.set("test", ".foo", "bar");
+        c.set("test", new Path(".foo"), "bar");
     }
 
     @Test
     public void get() throws Exception {
         c._conn().flushDB();
-        c.set("test", ".", "foo");
-        assertEquals("foo", c.get("test", "."));
+        c.set("test", Path.RootPath(), "foo");
+        assertEquals("foo", c.get("test", Path.RootPath()));
     }
 
     @Test(expected = Exception.class)
     public void getException() throws Exception {
         c._conn().flushDB();
-        c.set("test", ".", "foo");
-        c.get("test", ".bar");
+        c.set("test", Path.RootPath(), "foo");
+        c.get("test", new Path(".bar"));
     }
 
     @Test
     public void del() throws Exception {
         c._conn().flushDB();
-        c.set("foobar", ".", new FooBarObject());
-        c.del("foobar", ".foo");
+        c.set("foobar", Path.RootPath(), new FooBarObject());
+        c.del("foobar", new Path(".foo"));
     }
 
     @Test(expected = Exception.class)
     public void delException() throws Exception {
         c._conn().flushDB();
-        c.set("foobar", ".", new FooBarObject());
-        c.del("foobar", ".foo[1]");
+        c.set("foobar", Path.RootPath(), new FooBarObject());
+        c.del("foobar", new Path(".foo[1]"));
     }
 
     @Test
     public void type() throws Exception {
         c._conn().flushDB();
-        c.set("foobar", ".", new FooBarObject());
-        assertSame(Object.class, c.type("foobar", "."));
-        assertSame(String.class, c.type("foobar", ".foo"));
+        c.set("foobar", Path.RootPath(), new FooBarObject());
+        assertSame(Object.class, c.type("foobar", Path.RootPath()));
+        assertSame(String.class, c.type("foobar", new Path(".foo")));
     }
 
     @Test(expected = Exception.class)
     public void typeException() throws Exception {
         c._conn().flushDB();
-        c.set("foobar", ".", new FooBarObject());
-        c.type("foobar", ".foo[1]");
+        c.set("foobar", Path.RootPath(), new FooBarObject());
+        c.type("foobar", new Path(".foo[1]"));
     }
 
 }
