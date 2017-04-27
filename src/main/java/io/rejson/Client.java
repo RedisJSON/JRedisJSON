@@ -23,7 +23,6 @@ public class Client {
     }
 
     private enum Command implements ProtocolCommand {
-
         DEL("JSON.DEL"),
         GET("JSON.GET"),
         SET("JSON.SET"),
@@ -39,14 +38,60 @@ public class Client {
         }
     }
 
-    private void assertReplyNotError(final String str) throws Exception {
-        if (str.startsWith("-ERR"))
-            throw new Exception(str.substring(5));
+    /**
+     * Existential modifier for the set command, by default we don't care
+     */
+    public enum ExistenceModifier implements ProtocolCommand {
+        DEFAULT(""),
+        NOT_EXISTS("NX"),
+        MUST_EXIST("XX");
+        private final byte[] raw;
+
+        ExistenceModifier(String alt) {
+            raw = SafeEncoder.encode(alt);
+        }
+
+        public byte[] getRaw() {
+            return raw;
+        }
     }
 
-    private void assertReplyOK(final String str) throws Exception {
+    /**
+     *  Helper to check for errors and throw them as an exception
+     * @param str the reply string to "analyze"
+     * @throws Exception
+     */
+    private void assertReplyNotError(final String str) {
+        if (str.startsWith("-ERR"))
+            throw new RuntimeException(str.substring(5));
+    }
+
+    /**
+     * Helper to check for an OK reply
+     * @param str the reply string to "scrutinize"
+     */
+    private void assertReplyOK(final String str) {
         if (!str.equals("OK"))
-            throw new Exception(str);
+            throw new RuntimeException(str);
+    }
+
+    /**
+     * Helper to handle single optional path argument situations
+     * @param path a single optional path
+     * @return the provided path or root if not
+     */
+    private Path getSingleOptionalPath(Path... path) {
+        // check for 0, 1 or more paths
+        if (1 > path.length) {
+            // default to root
+            return Path.RootPath();
+        } else if (1 == path.length){
+            // take 1
+            return path[0];
+        } else {
+            // throw out the baby with the water
+            throw new RuntimeException("Only a single optional path is allowed");
+        }
     }
 
     /**
@@ -56,7 +101,7 @@ public class Client {
      * @param timeout the timeout
      * @param poolSize the pool's size
      */
-    public Client(final String host, final int port, final int timeout, final int poolSize) {
+    public Client(String host, int port, int timeout, int poolSize) {
         JedisPoolConfig conf = new JedisPoolConfig();
         conf.setMaxTotal(poolSize);
         conf.setTestOnBorrow(false);
@@ -73,26 +118,31 @@ public class Client {
 
     }
 
-    public Client(final String host, final int port) {
+    /**
+     * Create a new client with default timeout and poolSize
+     * @param host the Redis host
+     * @param port the Redis port
+     */
+    public Client(String host, int port) {
         this(host, port, 500, 100);
     }
 
     /**
      * Deletes a path
      * @param key the key name
-     * @param path a path in the object
+     * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
      */
-    public Long del(final String key, final Path path) throws Exception {
+    public Long del(String key, Path... path) {
         Jedis conn = _conn();
-        ArrayList<byte[]> args = new ArrayList(3);
+        ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path.toString()));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
         Long rep = conn.getClient()
-                .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
-                .getIntegerReply();
+                    .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
+                    .getIntegerReply();
         conn.close();
 
         return rep;
@@ -101,10 +151,10 @@ public class Client {
     /**
      * Gets an object
      * @param key the key name
-     * @param paths a path in the object
+     * @param paths optional one ore more paths in the object, defaults to root
      * @return the requested object
      */
-    public Object get(final String key, final Path... paths) throws Exception {
+    public Object get(String key, Path... paths) {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
@@ -127,17 +177,20 @@ public class Client {
     /**
      * Sets an object
      * @param key the key name
-     * @param path a path in the object
      * @param object the Java object to store
+     * @param flag an existential modifier
+     * @param path optional single path in the object, defaults to root
      */
-    public void set(final String key, final Path path, final Object object) throws Exception {
-        // TODO: support NX|XX flags
+    public void set(String key, Object object, ExistenceModifier flag, Path... path) {
         Jedis conn = _conn();
-        ArrayList<byte[]> args = new ArrayList(3);
+        ArrayList<byte[]> args = new ArrayList(4);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path.toString()));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
         args.add(SafeEncoder.encode(gson.toJson(object)));
+        if (ExistenceModifier.DEFAULT != flag) {
+            args.add(flag.getRaw());
+        }
 
         String status = conn.getClient()
                 .sendCommand(Command.SET, args.toArray(new byte[args.size()][]))
@@ -148,17 +201,27 @@ public class Client {
     }
 
     /**
+     * Sets an object without caring about target path existing
+     * @param key the key name
+     * @param object the Java object to store
+     * @param path optional single path in the object, defaults to root
+     */
+    public void set(String key, Object object, Path... path) {
+        this.set(key, object, ExistenceModifier.DEFAULT, path);
+    }
+
+    /**
      * Gets the class of an object
      * @param key the key name
-     * @param path a path in the object
+     * @param path optional single path in the object, defaults to root
      * @return the Java class of the requested object
      */
-    public Class<? extends Object> type(final String key, final Path path) throws Exception {
+    public Class<? extends Object> type(String key, Path... path) {
         Jedis conn = _conn();
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(path.toString()));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
         String rep = conn.getClient()
                 .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]))
@@ -183,8 +246,7 @@ public class Client {
             case "array":
                 return List.class;
             default:
-                throw new Exception(rep);
+                throw new java.lang.RuntimeException(rep);
         }
     }
-
 }
