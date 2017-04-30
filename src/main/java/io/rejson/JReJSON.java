@@ -257,9 +257,4 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
                 throw new java.lang.RuntimeException(rep);
         }
     }
-    @Override
-    public Pipeline pipelined()
-    {
-
-    }
 }

@@ -185,7 +185,7 @@ public class ClientTest {
         c.type("foobar", new Path(".foo[1]"));
 
         JedisPoolConfig conf = new JedisPoolConfig();
-        conf.setMaxTotal(poolSize);
+        conf.setMaxTotal(55);
         conf.setTestOnBorrow(false);
         conf.setTestOnReturn(false);
         conf.setTestOnCreate(false);
@@ -199,7 +199,7 @@ public class ClientTest {
 
         JReJSON jReJSON = (JReJSON) pool.getResource();
 
-        
+
 
         //Pipeline pipe =  jReJSON.pipelined();
 
