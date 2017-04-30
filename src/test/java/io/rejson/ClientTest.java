@@ -184,20 +184,21 @@ public class ClientTest {
         c.set("foobar", new FooBarObject(), Path.RootPath());
         c.type("foobar", new Path(".foo[1]"));
 
-        JedisPoolConfig conf = new JedisPoolConfig();
-        conf.setMaxTotal(55);
-        conf.setTestOnBorrow(false);
-        conf.setTestOnReturn(false);
-        conf.setTestOnCreate(false);
-        conf.setTestWhileIdle(false);
-        conf.setMinEvictableIdleTimeMillis(60000);
-        conf.setTimeBetweenEvictionRunsMillis(30000);
-        conf.setNumTestsPerEvictionRun(-1);
-        conf.setFairness(true);
+//        JedisPoolConfig conf = new JedisPoolConfig();
+//        conf.setMaxTotal(55);
+//        conf.setTestOnBorrow(false);
+//        conf.setTestOnReturn(false);
+//        conf.setTestOnCreate(false);
+//        conf.setTestWhileIdle(false);
+//        conf.setMinEvictableIdleTimeMillis(60000);
+//        conf.setTimeBetweenEvictionRunsMillis(30000);
+//        conf.setNumTestsPerEvictionRun(-1);
+//        conf.setFairness(true);
+//
+//        JedisPool pool = new JedisPool(conf, "localhost", 6379,1000);
+//
+//        JReJSON jReJSON = (JReJSON) pool.getResource();
 
-        JedisPool pool = new JedisPool(conf, "localhost", 6379,1000);
-
-        JReJSON jReJSON = (JReJSON) pool.getResource();
 
 
 
