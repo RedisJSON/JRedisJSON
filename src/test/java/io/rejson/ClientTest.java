@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 
 import org.junit.Before;
 import org.junit.Test;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Pipeline;
 
 import static junit.framework.TestCase.*;
 
@@ -28,13 +31,13 @@ class IRLObject extends Object {
 
 public class ClientTest {
 
-    private Client c;
+    private JReJSON c;
     private Gson g;
 
     @Before
     public void initialize() {
         g = new Gson();
-        c = new Client("localhost", 6379);
+        c = new JReJSON("localhost", 6379);
     }
 
     @Test
@@ -67,7 +70,7 @@ public class ClientTest {
 
         c.set("obj", new IRLObject());
         Path p = new Path(".str");
-        c.set("obj", "strangle", Client.ExistenceModifier.MUST_EXIST, p);
+        c.set("obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
         assertEquals("strangle", c.get("obj", p));
     }
 
@@ -77,7 +80,7 @@ public class ClientTest {
 
         c.set("obj", new IRLObject());
         Path p = new Path(".none");
-        c.set("obj", "strangle", Client.ExistenceModifier.NOT_EXISTS, p);
+        c.set("obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
         assertEquals("strangle", c.get("obj", p));
     }
 
@@ -87,7 +90,7 @@ public class ClientTest {
 
         c.set("obj", new IRLObject());
         Path p = new Path(".str");
-        c.set("obj", "strangle", Client.ExistenceModifier.NOT_EXISTS, p);
+        c.set("obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
     }
 
     @Test(expected = Exception.class)
@@ -96,7 +99,7 @@ public class ClientTest {
 
         c.set("obj", new IRLObject());
         Path p = new Path(".none");
-        c.set("obj", "strangle", Client.ExistenceModifier.MUST_EXIST, p);
+        c.set("obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
     }
 
     @Test(expected = Exception.class)
@@ -174,5 +177,34 @@ public class ClientTest {
         c.set("foobar", new FooBarObject(), Path.RootPath());
         c.type("foobar", new Path(".foo[1]"));
     }
+
+    @Test(expected = Exception.class)
+    public void type1Exception() throws Exception {
+        c._conn().flushDB();
+        c.set("foobar", new FooBarObject(), Path.RootPath());
+        c.type("foobar", new Path(".foo[1]"));
+
+        JedisPoolConfig conf = new JedisPoolConfig();
+        conf.setMaxTotal(poolSize);
+        conf.setTestOnBorrow(false);
+        conf.setTestOnReturn(false);
+        conf.setTestOnCreate(false);
+        conf.setTestWhileIdle(false);
+        conf.setMinEvictableIdleTimeMillis(60000);
+        conf.setTimeBetweenEvictionRunsMillis(30000);
+        conf.setNumTestsPerEvictionRun(-1);
+        conf.setFairness(true);
+
+        JedisPool pool = new JedisPool(conf, "localhost", 6379,1000);
+
+        JReJSON jReJSON = (JReJSON) pool.getResource();
+
+        
+
+        //Pipeline pipe =  jReJSON.pipelined();
+
+
+    }
+
 
 }

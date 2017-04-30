@@ -5,21 +5,29 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import com.google.gson.Gson;
-import redis.clients.jedis.commands.ProtocolCommand;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.commands.*;
 import redis.clients.util.SafeEncoder;
 
 import java.util.*;
 
 /**
- * Client is the main ReJSON client class, wrapping connection management and all ReJSON commands
+ * JReJSON is the main ReJSON client class, wrapping connection management and all ReJSON commands
  */
-public class Client {
+public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, AdvancedJedisCommands, ScriptingCommands, BasicCommands, ClusterCommands, SentinelCommands, ModuleCommands,IJReJSON {
 
     private JedisPool pool;
     private Gson gson;
 
     Jedis _conn() {
         return pool.getResource();
+    }
+
+    @Override
+    public Object JSONGet(String key) {
+
+
+        return null;
     }
 
     private enum Command implements ProtocolCommand {
@@ -101,7 +109,7 @@ public class Client {
      * @param timeout the timeout
      * @param poolSize the pool's size
      */
-    public Client(String host, int port, int timeout, int poolSize) {
+    public JReJSON(String host, int port, int timeout, int poolSize) {
         JedisPoolConfig conf = new JedisPoolConfig();
         conf.setMaxTotal(poolSize);
         conf.setTestOnBorrow(false);
@@ -123,7 +131,7 @@ public class Client {
      * @param host the Redis host
      * @param port the Redis port
      */
-    public Client(String host, int port) {
+    public JReJSON(String host, int port) {
         this(host, port, 500, 100);
     }
 
@@ -248,5 +256,10 @@ public class Client {
             default:
                 throw new java.lang.RuntimeException(rep);
         }
+    }
+    @Override
+    public Pipeline pipelined()
+    {
+
     }
 }

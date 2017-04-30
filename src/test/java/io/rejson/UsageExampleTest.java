@@ -7,14 +7,14 @@ import org.junit.Test;
 public class UsageExampleTest {
     @Before
     public void initialize() {
-        Client c = new Client("localhost", 6379);
+        JReJSON c = new JReJSON("localhost", 6379);
         c._conn().flushDB();
     }
 
     @Test
     public void exampleShouldWork() throws Exception {
         // Firstly, the client's initialization
-        Client c = new Client("localhost", 6379);
+        JReJSON c = new JReJSON("localhost", 6379);
 
         // Setting a Redis key name _foo_ to the string _"bar"_, and reading it back
         c.set("foo", "bar");
