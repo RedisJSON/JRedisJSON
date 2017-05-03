@@ -1,34 +1,19 @@
 package io.rejson;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
 import com.google.gson.Gson;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.commands.*;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.util.SafeEncoder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JReJSON is the main ReJSON client class, wrapping connection management and all ReJSON commands
  */
-public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, AdvancedJedisCommands, ScriptingCommands, BasicCommands, ClusterCommands, SentinelCommands, ModuleCommands,IJReJSON {
+public class JReJSON {
 
-    private JedisPool pool;
-    private Gson gson;
-
-    Jedis _conn() {
-        return pool.getResource();
-    }
-
-    @Override
-    public Object JSONGet(String key) {
-
-
-        return null;
-    }
+    private static Gson gson = new Gson();
 
     private enum Command implements ProtocolCommand {
         DEL("JSON.DEL"),
@@ -67,9 +52,9 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
     /**
      *  Helper to check for errors and throw them as an exception
      * @param str the reply string to "analyze"
-     * @throws Exception
+     * @throws RuntimeException
      */
-    private void assertReplyNotError(final String str) {
+    private static void assertReplyNotError(final String str) {
         if (str.startsWith("-ERR"))
             throw new RuntimeException(str.substring(5));
     }
@@ -78,7 +63,7 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * Helper to check for an OK reply
      * @param str the reply string to "scrutinize"
      */
-    private void assertReplyOK(final String str) {
+    private static void assertReplyOK(final String str) {
         if (!str.equals("OK"))
             throw new RuntimeException(str);
     }
@@ -88,52 +73,21 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param path a single optional path
      * @return the provided path or root if not
      */
-    private Path getSingleOptionalPath(Path... path) {
+    private static Path getSingleOptionalPath(Path... path) {
         // check for 0, 1 or more paths
-        if (1 > path.length) {
+        if (1 > path.length)
             // default to root
             return Path.RootPath();
-        } else if (1 == path.length){
+         else if (1 == path.length)
             // take 1
             return path[0];
-        } else {
+         else
             // throw out the baby with the water
             throw new RuntimeException("Only a single optional path is allowed");
-        }
-    }
-
-    /**
-     * Create a new client
-     * @param host the Redis host
-     * @param port the Redis port
-     * @param timeout the timeout
-     * @param poolSize the pool's size
-     */
-    public JReJSON(String host, int port, int timeout, int poolSize) {
-        JedisPoolConfig conf = new JedisPoolConfig();
-        conf.setMaxTotal(poolSize);
-        conf.setTestOnBorrow(false);
-        conf.setTestOnReturn(false);
-        conf.setTestOnCreate(false);
-        conf.setTestWhileIdle(false);
-        conf.setMinEvictableIdleTimeMillis(60000);
-        conf.setTimeBetweenEvictionRunsMillis(30000);
-        conf.setNumTestsPerEvictionRun(-1);
-        conf.setFairness(true);
-
-        pool = new JedisPool(conf, host, port, timeout);
-        gson = new Gson();
 
     }
 
-    /**
-     * Create a new client with default timeout and poolSize
-     * @param host the Redis host
-     * @param port the Redis port
-     */
-    public JReJSON(String host, int port) {
-        this(host, port, 500, 100);
-    }
+
 
     /**
      * Deletes a path
@@ -141,8 +95,8 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
      */
-    public Long del(String key, Path... path) {
-        Jedis conn = _conn();
+    public static Long del(Jedis conn, String key, Path... path) {
+
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
@@ -162,8 +116,8 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param paths optional one ore more paths in the object, defaults to root
      * @return the requested object
      */
-    public Object get(String key, Path... paths) {
-        Jedis conn = _conn();
+    public static Object get(Jedis conn,String key, Path... paths) {
+
         ArrayList<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
@@ -189,8 +143,8 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param flag an existential modifier
      * @param path optional single path in the object, defaults to root
      */
-    public void set(String key, Object object, ExistenceModifier flag, Path... path) {
-        Jedis conn = _conn();
+    public static void set(Jedis conn ,String key, Object object, ExistenceModifier flag, Path... path) {
+
         ArrayList<byte[]> args = new ArrayList(4);
 
         args.add(SafeEncoder.encode(key));
@@ -214,8 +168,8 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param object the Java object to store
      * @param path optional single path in the object, defaults to root
      */
-    public void set(String key, Object object, Path... path) {
-        this.set(key, object, ExistenceModifier.DEFAULT, path);
+    public static void set(Jedis conn,String key, Object object, Path... path) {
+        set(conn,key, object, ExistenceModifier.DEFAULT, path);
     }
 
     /**
@@ -224,9 +178,11 @@ public class JReJSON extends Jedis implements JedisCommands, MultiKeyCommands, A
      * @param path optional single path in the object, defaults to root
      * @return the Java class of the requested object
      */
-    public Class<? extends Object> type(String key, Path... path) {
-        Jedis conn = _conn();
+    public static Class<? extends Object> type(Jedis conn,String key, Path... path) {
+
         ArrayList<byte[]> args = new ArrayList(2);
+
+
 
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
