@@ -4,12 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
-
 public class UsageExampleTest {
 
-    private String host="52.7.3.128";
-    private int port=6379;
-    Jedis jedis  = new Jedis(host,port);
+    private String host = "localhost";
+    private int port = 6379;
+    Jedis jedis = new Jedis(host,port);
 
     @Before
     public void initialize() {
@@ -18,7 +17,6 @@ public class UsageExampleTest {
 
     @Test
     public void exampleShouldWork() throws Exception {
-
 
         // Setting a Redis key name _foo_ to the string _"bar"_, and reading it back
         JReJSON.set(jedis,"foo", "bar");

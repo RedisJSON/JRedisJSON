@@ -84,13 +84,11 @@ public class JReJSON {
          else
             // throw out the baby with the water
             throw new RuntimeException("Only a single optional path is allowed");
-
     }
-
-
 
     /**
      * Deletes a path
+     * @param conn the Jedis connection
      * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
@@ -112,11 +110,12 @@ public class JReJSON {
 
     /**
      * Gets an object
+     * @param conn the Jedis connection
      * @param key the key name
      * @param paths optional one ore more paths in the object, defaults to root
      * @return the requested object
      */
-    public static Object get(Jedis conn,String key, Path... paths) {
+    public static Object get(Jedis conn, String key, Path... paths) {
 
         ArrayList<byte[]> args = new ArrayList(2);
 
@@ -134,16 +133,15 @@ public class JReJSON {
         return gson.fromJson(rep, Object.class);
     }
 
-    // TODO: add support for JSON.MGET
-
     /**
      * Sets an object
+     * @param conn the Jedis connection
      * @param key the key name
      * @param object the Java object to store
      * @param flag an existential modifier
      * @param path optional single path in the object, defaults to root
      */
-    public static void set(Jedis conn ,String key, Object object, ExistenceModifier flag, Path... path) {
+    public static void set(Jedis conn, String key, Object object, ExistenceModifier flag, Path... path) {
 
         ArrayList<byte[]> args = new ArrayList(4);
 
@@ -164,21 +162,23 @@ public class JReJSON {
 
     /**
      * Sets an object without caring about target path existing
+     * @param conn the Jedis connection
      * @param key the key name
      * @param object the Java object to store
      * @param path optional single path in the object, defaults to root
      */
-    public static void set(Jedis conn,String key, Object object, Path... path) {
+    public static void set(Jedis conn, String key, Object object, Path... path) {
         set(conn,key, object, ExistenceModifier.DEFAULT, path);
     }
 
     /**
      * Gets the class of an object
+     * @param conn the Jedis connection
      * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the Java class of the requested object
      */
-    public static Class<? extends Object> type(Jedis conn,String key, Path... path) {
+    public static Class<? extends Object> type(Jedis conn, String key, Path... path) {
 
         ArrayList<byte[]> args = new ArrayList(2);
 
