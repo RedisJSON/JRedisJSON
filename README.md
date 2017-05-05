@@ -36,11 +36,11 @@ String s1 = (String) JReJSON.get(jedis,"foo", new Path("."));
 String s2 = (String) JReJSON.get(jedis, "foo", Path.RootPath());
 
 // Any Gson-able object can be set and updated
-JReJSON.set(jedis,"obj", new Object());					         // just an empty object
+JReJSON.set(jedis,"obj", new Object());             // just an empty object
 JReJSON.set(jedis,"obj", null, new Path(".zilch"));
 Path p = new Path(".whatevs");
 JReJSON.set(jedis,"obj", true, p);
 JReJSON.set(jedis,"obj", 42, p);
-JReJSON.del(jedis,"obj", p);                                    // back to almost nothing
+JReJSON.del(jedis,"obj", p);                        // back to almost nothing
 
 ```
