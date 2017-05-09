@@ -6,6 +6,8 @@ A Java Client Library for [ReJSON](https://github.com/redislabsmodules/rejson)
 
 This client provides access to ReJSON's Redis API, and provides back-and-forth serialization between Java's and its objects.
 
+This project is currently WIP and the interface may change. Also note that only the core ReJSON commands are supported at the moment. 
+
 ## Installation
 
 1. Install Jedis (once v3 is released this step will be obsolete)
@@ -44,3 +46,12 @@ JReJSON.set(jedis,"obj", 42, p);
 JReJSON.del(jedis,"obj", p);                        // back to almost nothing
 
 ```
+
+# Contributing
+
+Please use this repository's issue tracker to submit issues and pull requests.
+
+# License
+
+[BSD 2-Clause License](LICENSE)
+

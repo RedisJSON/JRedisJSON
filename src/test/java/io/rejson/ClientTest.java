@@ -19,6 +19,7 @@ class FooBarObject extends Object {
     }
 }
 
+/* A simple class that represents an object in real life */
 class IRLObject extends Object {
     public String str;
     public boolean bTrue;
@@ -28,7 +29,6 @@ class IRLObject extends Object {
         this.bTrue = true;
     }
 }
-
 
 public class ClientTest {
 
@@ -53,7 +53,7 @@ public class ClientTest {
         JReJSON.set(jedis, "str", "strong");
         assertEquals("strong", JReJSON.get(jedis, "str"));
 
-        // A slightly more complex object
+        // a slightly more complex object
         IRLObject obj = new IRLObject();
         JReJSON.set(jedis, "obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
