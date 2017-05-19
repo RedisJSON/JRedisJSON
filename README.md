@@ -13,17 +13,17 @@ This project is currently WIP and the interface may change. Also note that only 
 1. Install Jedis (once v3 is released this step will be obsolete)
     1. Clone it: `git clone --depth 1 git@github.com:xetorthio/jedis.git`
     2. `cd jedis`
-    3. `mvn -Dmaven.test.skip=true install`
+    3. `mvn clean install -Dmaven.test.skip=true`
 2. Install JReJSON (todo: add to maven)
     1. Clone it: `git clone git@github.com:RedisLabs/JReJSON.git`
     2. `cd JReJSON`
-    3. `mvn -Dmaven.test.skip=true install`
+    3. `mvn clean install -Dmaven.test.skip=true`
 
 ## Usage example
 
-```java
+```java  
 import redis.clients.jedis.Jedis;
-import io.rejson.JReJSON;
+import com.redislabs.modules.rejson.JReJSON;
 
 // First get a connection
 Jedis jedis = new Jedis("localhost", 6379);
