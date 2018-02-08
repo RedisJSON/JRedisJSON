@@ -29,6 +29,7 @@
 package com.redislabs.modules.rejson;
 
 import com.google.gson.Gson;
+import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.util.SafeEncoder;
@@ -128,12 +129,9 @@ public class JReJSON {
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
-        Long rep = conn.getClient()
-                    .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
-                    .getIntegerReply();
-        conn.close();
-
-        return rep;
+        Client client = conn.getClient();
+        client.sendCommand(Command.DEL, args.toArray(new byte[args.size()][]));
+        return client.getIntegerReply();
     }
 
     /**
@@ -152,10 +150,10 @@ public class JReJSON {
             args.add(SafeEncoder.encode(p.toString()));
         }
 
-        String rep = conn.getClient()
-                .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
-                .getBulkReply();
-        conn.close();
+        Client client = conn.getClient();
+        client.sendCommand(Command.GET, args.toArray(new byte[args.size()][]));
+        String rep = client.getBulkReply();
+
 
         assertReplyNotError(rep);
         return gson.fromJson(rep, Object.class);
@@ -180,10 +178,9 @@ public class JReJSON {
             args.add(flag.getRaw());
         }
 
-        String status = conn.getClient()
-                .sendCommand(Command.SET, args.toArray(new byte[args.size()][]))
-                .getStatusCodeReply();
-        conn.close();
+        Client client = conn.getClient();
+        client.sendCommand(Command.SET, args.toArray(new byte[args.size()][]));
+        String status = client.getStatusCodeReply();
 
         assertReplyOK(status);
     }
@@ -213,10 +210,9 @@ public class JReJSON {
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
-        String rep = conn.getClient()
-                .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]))
-                .getBulkReply();
-        conn.close();
+        Client client = conn.getClient();
+        client.sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]));
+        String rep = client.getBulkReply();
 
         assertReplyNotError(rep);
 
