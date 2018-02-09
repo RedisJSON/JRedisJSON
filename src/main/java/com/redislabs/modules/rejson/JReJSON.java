@@ -79,8 +79,7 @@ public class JReJSON {
     }
 
     /**
-     * Helper to check for errors and throw them as an exception
-     *
+     *  Helper to check for errors and throw them as an exception
      * @param str the reply string to "analyze"
      * @throws RuntimeException
      */
@@ -91,7 +90,6 @@ public class JReJSON {
 
     /**
      * Helper to check for an OK reply
-     *
      * @param str the reply string to "scrutinize"
      */
     private static void assertReplyOK(final String str) {
@@ -101,7 +99,6 @@ public class JReJSON {
 
     /**
      * Helper to handle single optional path argument situations
-     *
      * @param path a single optional path
      * @return the provided path or root if not
      */
@@ -110,19 +107,18 @@ public class JReJSON {
         if (1 > path.length)
             // default to root
             return Path.RootPath();
-        else if (1 == path.length)
+         else if (1 == path.length)
             // take 1
             return path[0];
-        else
+         else
             // throw out the baby with the water
             throw new RuntimeException("Only a single optional path is allowed");
     }
 
     /**
      * Deletes a path
-     *
      * @param conn the Jedis connection
-     * @param key  the key name
+     * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
      */
@@ -143,9 +139,8 @@ public class JReJSON {
 
     /**
      * Gets an object
-     *
-     * @param conn  the Jedis connection
-     * @param key   the key name
+     * @param conn the Jedis connection
+     * @param key the key name
      * @param paths optional one ore more paths in the object, defaults to root
      * @return the requested object
      */
@@ -154,7 +149,7 @@ public class JReJSON {
         List<byte[]> args = new ArrayList(2);
 
         args.add(SafeEncoder.encode(key));
-        for (Path p : paths) {
+        for (Path p :paths) {
             args.add(SafeEncoder.encode(p.toString()));
         }
 
@@ -169,12 +164,11 @@ public class JReJSON {
 
     /**
      * Sets an object
-     *
-     * @param conn   the Jedis connection
-     * @param key    the key name
+     * @param conn the Jedis connection
+     * @param key the key name
      * @param object the Java object to store
-     * @param flag   an existential modifier
-     * @param path   optional single path in the object, defaults to root
+     * @param flag an existential modifier
+     * @param path optional single path in the object, defaults to root
      */
     public static void set(Jedis conn, String key, Object object, ExistenceModifier flag, Path... path) {
 
@@ -197,21 +191,19 @@ public class JReJSON {
 
     /**
      * Sets an object without caring about target path existing
-     *
-     * @param conn   the Jedis connection
-     * @param key    the key name
+     * @param conn the Jedis connection
+     * @param key the key name
      * @param object the Java object to store
-     * @param path   optional single path in the object, defaults to root
+     * @param path optional single path in the object, defaults to root
      */
     public static void set(Jedis conn, String key, Object object, Path... path) {
-        set(conn, key, object, ExistenceModifier.DEFAULT, path);
+        set(conn,key, object, ExistenceModifier.DEFAULT, path);
     }
 
     /**
      * Gets the class of an object
-     *
      * @param conn the Jedis connection
-     * @param key  the key name
+     * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the Java class of the requested object
      */
