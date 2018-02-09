@@ -131,7 +131,10 @@ public class JReJSON {
 
         Client client = conn.getClient();
         client.sendCommand(Command.DEL, args.toArray(new byte[args.size()][]));
-        return client.getIntegerReply();
+        Long rep = client.getIntegerReply();
+        conn.close();
+
+        return rep;
     }
 
     /**
@@ -153,7 +156,7 @@ public class JReJSON {
         Client client = conn.getClient();
         client.sendCommand(Command.GET, args.toArray(new byte[args.size()][]));
         String rep = client.getBulkReply();
-
+        conn.close();
 
         assertReplyNotError(rep);
         return gson.fromJson(rep, Object.class);
@@ -181,6 +184,7 @@ public class JReJSON {
         Client client = conn.getClient();
         client.sendCommand(Command.SET, args.toArray(new byte[args.size()][]));
         String status = client.getStatusCodeReply();
+        conn.close();
 
         assertReplyOK(status);
     }
@@ -213,6 +217,7 @@ public class JReJSON {
         Client client = conn.getClient();
         client.sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]));
         String rep = client.getBulkReply();
+        conn.close();
 
         assertReplyNotError(rep);
 
