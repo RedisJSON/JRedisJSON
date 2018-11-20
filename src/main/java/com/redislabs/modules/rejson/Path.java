@@ -44,7 +44,7 @@ public class Path {
     /**
      * Makes a root path
      * @return the root path
-     * @deprecated use {@value #ROOT_PATH} instead
+     * @deprecated use {@link #ROOT_PATH} instead
      */
     @Deprecated
     public static Path RootPath() {

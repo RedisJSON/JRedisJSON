@@ -218,7 +218,6 @@ public class JReJSON {
      * Sets an object in the root path
      * @param key the key name
      * @param object the Java object to store
-     * @param path in the object
      */
     public void set(String key, Object object) {
         set(key, object, ExistenceModifier.DEFAULT, Path.ROOT_PATH);
@@ -319,7 +318,7 @@ public class JReJSON {
      * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
-     * @deprecated use {@link #del(String, Path...)} instead 
+     * @deprecated use {@link #del(String, Path)} instead 
      */
     @Deprecated
     public static Long del(Jedis conn, String key, Path... path) {
@@ -371,7 +370,7 @@ public class JReJSON {
      * @param object the Java object to store
      * @param flag an existential modifier
      * @param path optional single path in the object, defaults to root
-     * @deprecated use {@link #set(String, Object, ExistenceModifier, Path...)} instead
+     * @deprecated use {@link #set(String, Object, ExistenceModifier, Path)} instead
      */
     @Deprecated
     public static void set(Jedis conn, String key, Object object, ExistenceModifier flag, Path... path) {
@@ -399,7 +398,7 @@ public class JReJSON {
      * @param key the key name
      * @param object the Java object to store
      * @param path optional single path in the object, defaults to root
-     * @deprecated use {@link #set(String, Object, ExistenceModifier, Path...)} instead
+     * @deprecated use {@link #set(String, Object, ExistenceModifier, Path)} instead
      */
     @Deprecated
     public static void set(Jedis conn, String key, Object object, Path... path) {
@@ -412,7 +411,7 @@ public class JReJSON {
      * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the Java class of the requested object
-     * @deprecated use {@link #type(String, Path...)} instead
+     * @deprecated use {@link #type(String, Path)} instead
      */
     @Deprecated
     public static Class<?> type(Jedis conn, String key, Path... path) {
