@@ -1,3 +1,6 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson)
+[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+
 # JReJSON
 
 A Java Client Library for [ReJSON](https://github.com/redislabsmodules/rejson)
@@ -8,13 +11,45 @@ This client provides access to ReJSON's Redis API, and provides back-and-forth s
 
 This project is currently WIP and the interface may change. Also note that only the core ReJSON commands are supported at the moment. 
 
-## Installation
 
-1. Install Jedis (once v3 is released this step will be obsolete)
-    1. Clone it: `git clone --depth 1 git@github.com:xetorthio/jedis.git`
-    2. `cd jedis`
-    3. `mvn clean install -Dmaven.test.skip=true`
-2. Install JReJSON (todo: add to maven)
+
+## Official Releases
+
+```xml
+  <dependencies>
+    <dependency>
+      <groupId>com.redislabs</groupId>
+      <artifactId>jrejson</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+```
+
+### Snapshots
+
+```xml
+  <repositories>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+```
+
+and
+
+```xml
+  <dependencies>
+    <dependency>
+      <groupId>com.redislabs</groupId>
+      <artifactId>jrejson</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+```
+
+
+## Build
     1. Clone it: `git clone git@github.com:RedisLabs/JReJSON.git`
     2. `cd JReJSON`
     3. `mvn clean install -Dmaven.test.skip=true`
