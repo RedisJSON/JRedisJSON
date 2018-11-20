@@ -30,10 +30,11 @@ package com.redislabs.modules.rejson;
 
 /**
  * Path is a ReJSON path, representing a valid path into an object
- * TODO: make path building even more fun
  */
-
 public class Path {
+	
+	public static final Path ROOT_PATH = new Path(".");
+	
     private final String strPath;
 
     public Path(final String strPath) {
@@ -43,7 +44,9 @@ public class Path {
     /**
      * Makes a root path
      * @return the root path
+     * @deprecated use {@value #ROOT_PATH} instead
      */
+    @Deprecated
     public static Path RootPath() {
         return new Path(".");
     }
