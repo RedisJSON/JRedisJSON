@@ -31,7 +31,7 @@ package com.redislabs.modules.rejson;
 import com.google.gson.Gson;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.commands.ProtocolCommand;
-import redis.clients.util.SafeEncoder;
+import redis.clients.jedis.util.SafeEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,9 +128,9 @@ public class JReJSON {
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
-        Long rep = conn.getClient()
-                    .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]))
-                    .getIntegerReply();
+        conn.getClient()
+                    .sendCommand(Command.DEL, args.toArray(new byte[args.size()][]));
+        Long rep = conn.getClient().getIntegerReply();
         conn.close();
 
         return rep;
@@ -152,9 +152,9 @@ public class JReJSON {
             args.add(SafeEncoder.encode(p.toString()));
         }
 
-        String rep = conn.getClient()
-                .sendCommand(Command.GET, args.toArray(new byte[args.size()][]))
-                .getBulkReply();
+        conn.getClient()
+                .sendCommand(Command.GET, args.toArray(new byte[args.size()][]));
+        String rep = conn.getClient().getBulkReply();
         conn.close();
 
         assertReplyNotError(rep);
@@ -180,9 +180,9 @@ public class JReJSON {
             args.add(flag.getRaw());
         }
 
-        String status = conn.getClient()
-                .sendCommand(Command.SET, args.toArray(new byte[args.size()][]))
-                .getStatusCodeReply();
+        conn.getClient()
+                .sendCommand(Command.SET, args.toArray(new byte[args.size()][]));
+        String status = conn.getClient().getStatusCodeReply();
         conn.close();
 
         assertReplyOK(status);
@@ -198,7 +198,7 @@ public class JReJSON {
     public static void set(Jedis conn, String key, Object object, Path... path) {
         set(conn,key, object, ExistenceModifier.DEFAULT, path);
     }
-
+    
     /**
      * Gets the class of an object
      * @param conn the Jedis connection
@@ -213,9 +213,9 @@ public class JReJSON {
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
 
-        String rep = conn.getClient()
-                .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]))
-                .getBulkReply();
+        conn.getClient()
+                .sendCommand(Command.TYPE, args.toArray(new byte[args.size()][]));
+        String rep = conn.getClient().getBulkReply();
         conn.close();
 
         assertReplyNotError(rep);
