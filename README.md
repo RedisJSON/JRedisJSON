@@ -20,7 +20,7 @@ This project is currently WIP and the interface may change. Also note that only 
     <dependency>
       <groupId>com.redislabs</groupId>
       <artifactId>jrejson</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
   </dependencies>
 ```
@@ -43,7 +43,7 @@ and
     <dependency>
       <groupId>com.redislabs</groupId>
       <artifactId>jrejson</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.1.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```
