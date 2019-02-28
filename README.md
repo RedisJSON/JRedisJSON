@@ -1,5 +1,8 @@
+[![license](https://img.shields.io/github/license/RedisLabs/jrejson.svg)](https://github.com/RedisLabs/jrejson)
+[![GitHub issues](https://img.shields.io/github/release/RedisLabs/JReJSON.svg)](https://github.com/RedisLabs/JReJSON/releases/latest)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson)
-[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+[![Javadocs](https://www.javadoc.io/badge/com.redislabs/jrejson.svg)](https://www.javadoc.io/doc/com.redislabs/jrejson)
+
 
 # JReJSON
 
