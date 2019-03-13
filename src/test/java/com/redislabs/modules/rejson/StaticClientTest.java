@@ -59,7 +59,8 @@ public class StaticClientTest {
     private Gson g;
     private String host="localhost";
     private int port=6379;
-    Jedis jedis = new Jedis(host,port);
+    final Jedis jedis = new Jedis(host,port);
+    final JReJSON reJSON = new JReJSON(host,port);
 
     @Before
     public void initialize() {
@@ -70,61 +71,61 @@ public class StaticClientTest {
     public void basicSetGetShouldSucceed() throws Exception {
 
         // naive set with a path
-        JReJSON.set(jedis, "null", null, Path.RootPath());
-        assertNull(JReJSON.get(jedis, "null", Path.RootPath()));
+        reJSON.set("null", null, Path.ROOT_PATH);
+        assertNull(reJSON.get("null", Path.ROOT_PATH));
 
         // real scalar value and no path
-        JReJSON.set(jedis, "str", "strong");
-        assertEquals("strong", JReJSON.get(jedis, "str"));
+        reJSON.set("str", "strong");
+        assertEquals("strong", reJSON.get("str"));
 
         // a slightly more complex object
         IRLObject obj = new IRLObject();
-        JReJSON.set(jedis, "obj", obj);
+        reJSON.set("obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(JReJSON.get(jedis, "obj")));
+        assertTrue(expected.equals(reJSON.get("obj")));
 
         // check an update
         Path p = new Path(".str");
-        JReJSON.set(jedis, "obj", "strung", p);
-        assertEquals("strung", JReJSON.get(jedis, "obj", p));
+        reJSON.set("obj", "strung", p);
+        assertEquals("strung", reJSON.get("obj", p));
     }
 
     @Test
     public void setExistingPathOnlyIfExistsShouldSucceed() throws Exception {
         jedis.flushDB();
 
-        JReJSON.set(jedis, "obj", new IRLObject());
+        reJSON.set("obj", new IRLObject());
         Path p = new Path(".str");
-        JReJSON.set(jedis, "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
-        assertEquals("strangle", JReJSON.get(jedis, "obj", p));
+        reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
+        assertEquals("strangle", reJSON.get("obj", p));
     }
 
     @Test
     public void setNonExistingOnlyIfNotExistsShouldSucceed() throws Exception {
         jedis.flushDB();
 
-        JReJSON.set(jedis, "obj", new IRLObject());
+        reJSON.set("obj", new IRLObject());
         Path p = new Path(".none");
-        JReJSON.set(jedis, "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
-        assertEquals("strangle", JReJSON.get(jedis, "obj", p));
+        reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
+        assertEquals("strangle", reJSON.get("obj", p));
     }
 
     @Test(expected = Exception.class)
     public void setExistingPathOnlyIfNotExistsShouldFail() throws Exception {
         jedis.flushDB();
 
-        JReJSON.set(jedis, "obj", new IRLObject());
+        reJSON.set("obj", new IRLObject());
         Path p = new Path(".str");
-        JReJSON.set(jedis, "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
+        reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
     }
 
     @Test(expected = Exception.class)
     public void setNonExistingPathOnlyIfExistsShouldFail() throws Exception {
         jedis.flushDB();
 
-        JReJSON.set(jedis, "obj", new IRLObject());
+        reJSON.set("obj", new IRLObject());
         Path p = new Path(".none");
-        JReJSON.set(jedis, "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
+        reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
     }
 
     @Test(expected = Exception.class)
@@ -132,13 +133,14 @@ public class StaticClientTest {
         jedis.flushDB();
 
         // should error on non root path for new key
-        JReJSON.set(jedis, "test", "bar", new Path(".foo"));
+        reJSON.set("test", "bar", new Path(".foo"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test(expected = Exception.class)
     public void setMultiplePathsShouldFail() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "obj", new IRLObject());
+        reJSON.set("obj", new IRLObject());
         JReJSON.set(jedis, "obj", "strange", new Path(".str"), new Path(".str"));
     }
 
@@ -148,17 +150,17 @@ public class StaticClientTest {
 
         // check multiple paths
         IRLObject obj = new IRLObject();
-        JReJSON.set(jedis, "obj", obj);
+        reJSON.set("obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(JReJSON.get(jedis, "obj", new Path("bTrue"), new Path("str"))));
+        assertTrue(expected.equals(reJSON.get("obj", new Path("bTrue"), new Path("str"))));
 
     }
 
     @Test(expected = Exception.class)
     public void getException() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "test", "foo", Path.RootPath());
-        JReJSON.get(jedis, "test", new Path(".bar"));
+        reJSON.set("test", "foo", Path.ROOT_PATH);
+        reJSON.get("test", new Path(".bar"));
     }
 
     @Test
@@ -166,22 +168,23 @@ public class StaticClientTest {
         jedis.flushDB();
 
         // check deletion of a single path
-        JReJSON.set(jedis, "obj", new IRLObject(), Path.RootPath());
-        JReJSON.del(jedis, "obj", new Path(".str"));
+        reJSON.set("obj", new IRLObject(), Path.ROOT_PATH);
+        reJSON.del("obj", new Path(".str"));
         assertTrue(jedis.exists("obj"));
 
         // check deletion root using default root -> key is removed
-        JReJSON.del(jedis, "obj");
+        reJSON.del("obj");
         assertFalse(jedis.exists("obj"));
     }
 
     @Test(expected = Exception.class)
     public void delException() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "foobar", new FooBarObject(), Path.RootPath());
-        JReJSON.del(jedis, "foobar", new Path(".foo[1]"));
+        reJSON.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+        reJSON.del("foobar", new Path(".foo[1]"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test(expected = Exception.class)
     public void delMultiplePathsShoudFail() throws Exception {
         jedis.flushDB();
@@ -191,22 +194,22 @@ public class StaticClientTest {
     @Test
     public void typeChecksShouldSucceed() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "foobar", new FooBarObject(), Path.RootPath());
-        assertSame(Object.class, JReJSON.type(jedis, "foobar", Path.RootPath()));
-        assertSame(String.class, JReJSON.type(jedis, "foobar", new Path(".foo")));
+        reJSON.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+        assertSame(Object.class, reJSON.type("foobar", Path.ROOT_PATH));
+        assertSame(String.class, reJSON.type("foobar", new Path(".foo")));
     }
 
     @Test(expected = Exception.class)
     public void typeException() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "foobar", new FooBarObject(), Path.RootPath());
-        JReJSON.type(jedis, "foobar", new Path(".foo[1]"));
+        reJSON.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+        reJSON.type("foobar", new Path(".foo[1]"));
     }
 
     @Test(expected = Exception.class)
     public void type1Exception() throws Exception {
         jedis.flushDB();
-        JReJSON.set(jedis, "foobar", new FooBarObject(), Path.RootPath());
-        JReJSON.type(jedis, "foobar", new Path(".foo[1]"));
+        reJSON.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+        reJSON.type("foobar", new Path(".foo[1]"));
     }
 }

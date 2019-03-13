@@ -37,6 +37,7 @@ public class UsageExampleTest {
     private String host = "localhost";
     private int port = 6379;
     Jedis jedis = new Jedis(host,port);
+    JReJSON reJSON = new JReJSON(host,port);
 
     @Before
     public void initialize() {
@@ -47,20 +48,20 @@ public class UsageExampleTest {
     public void exampleShouldWork() throws Exception {
 
         // Setting a Redis key name _foo_ to the string _"bar"_, and reading it back
-        JReJSON.set(jedis,"foo", "bar");
-        String s0 = (String) JReJSON.get(jedis,"foo");
+        reJSON.set("foo", "bar");
+        String s0 = reJSON.get("foo");
 
         // Omitting the path (usually) defaults to the root path, so the call above to `get()` and the following ones
         // are basically interchangeable
-        String s1 = (String) JReJSON.get(jedis,"foo", new Path("."));
-        String s2 = (String) JReJSON.get(jedis, "foo", Path.RootPath());
+        String s1 = reJSON.get("foo", new Path("."));
+        String s2 = reJSON.get( "foo", Path.ROOT_PATH);
 
         // Any Gson-able object can be set and updated
-        JReJSON.set(jedis,"obj", new Object());					         // just an empty object
-        JReJSON.set(jedis,"obj", null, new Path(".zilch"));
+        reJSON.set("obj", new Object());					         // just an empty object
+        reJSON.set("obj", null, new Path(".zilch"));
         Path p = new Path(".whatevs");
-        JReJSON.set(jedis,"obj", true, p);
-        JReJSON.set(jedis,"obj", 42, p);
-        JReJSON.del(jedis,"obj", p);                                    // back to almost nothing
+        reJSON.set("obj", true, p);
+        reJSON.set("obj", 42, p);
+        reJSON.del("obj", p);                                    // back to almost nothing
     }
 }

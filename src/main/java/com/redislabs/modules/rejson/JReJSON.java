@@ -177,7 +177,7 @@ public class JReJSON {
      * @param key the key name
      * @return the requested object
      */
-    public Object get(String key) {
+    public <T> T get(String key) {
     	return get(key, Path.ROOT_PATH);
     }
     
@@ -187,7 +187,7 @@ public class JReJSON {
      * @param paths optional one ore more paths in the object
      * @return the requested object
      */
-    public Object get(String key, Path... paths) {
+    public <T> T get(String key, Path... paths) {
         byte[][] args = new byte[1 + paths.length][];
         int i=0;
         args[i] = SafeEncoder.encode(key);
@@ -201,7 +201,7 @@ public class JReJSON {
         	rep = conn.getClient().getBulkReply();
     	}
     	assertReplyNotError(rep);
-    	return gson.fromJson(rep, Object.class);
+    	return (T)gson.fromJson(rep, Object.class);
     }
 
     /**
