@@ -9,7 +9,7 @@
 
 # JReJSON
 
-A Java Client Library for [ReJSON](https://github.com/redislabsmodules/rejson)
+A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
 ## Overview 
 
