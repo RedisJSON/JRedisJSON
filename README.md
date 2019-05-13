@@ -1,4 +1,5 @@
 [![license](https://img.shields.io/github/license/RedisJSON/jrejson.svg)](https://github.com/RedisJSON/jrejson)
+[![CircleCI](https://circleci.com/gh/RedisJSON/JReJSON/tree/master.svg?style=svg)](https://circleci.com/gh/RedisJSON/JReJSON/tree/master)
 [![GitHub issues](https://img.shields.io/github/release/RedisJSON/JReJSON.svg)](https://github.com/RedisJSON/JReJSON/releases/latest)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson)
 [![Javadocs](https://www.javadoc.io/badge/com.redislabs/jrejson.svg)](https://www.javadoc.io/doc/com.redislabs/jrejson)
