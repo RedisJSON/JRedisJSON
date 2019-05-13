@@ -4,6 +4,7 @@
 !**/*.md
 !.gitignore
 !pom.xml
+!.circleci/*
 
 /target
 *.class
