@@ -13,9 +13,9 @@ A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
 ## Overview 
 
-This client provides access to ReJSON's Redis API, and provides back-and-forth serialization between Java's and its objects.
+This client provides access to RedisJSON's Redis API, and provides back-and-forth serialization between Java's and its objects.
 
-This project is currently WIP and the interface may change. Also note that only the core ReJSON commands are supported at the moment. 
+This project is currently WIP and the interface may change. Also note that only the core RedisJSON commands are supported at the moment. 
 
 
 
@@ -56,8 +56,8 @@ and
 
 
 ## Build
-    1. Clone it: `git clone git@github.com:RedisLabs/JReJSON.git`
-    2. `cd JReJSON`
+    1. Clone it: `git clone git@github.com:RedisJSON/JRedisJSON.git`
+    2. `cd JRedisJSON`
     3. `mvn clean install -Dmaven.test.skip=true`
 
 ## Usage example
