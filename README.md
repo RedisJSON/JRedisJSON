@@ -7,7 +7,7 @@
 
 
 
-# JReJSON
+# JRedisJSON
 
 A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
