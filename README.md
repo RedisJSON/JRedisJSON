@@ -1,7 +1,7 @@
 [![license](https://img.shields.io/github/license/RedisJSON/jredisjson.svg)](https://github.com/RedisJSON/jredisjson)
 [![CircleCI](https://circleci.com/gh/RedisJSON/JRedisJSON/tree/master.svg?style=svg)](https://circleci.com/gh/RedisJSON/JRedisJSON/tree/master)
 [![GitHub issues](https://img.shields.io/github/release/RedisJSON/JRedisJSON.svg)](https://github.com/RedisJSON/JRedisJSON/releases/latest)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jredisjson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jredisjson)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson)
 [![Javadocs](https://www.javadoc.io/badge/com.redislabs/jrejson.svg)](https://www.javadoc.io/doc/com.redislabs/jrejson)
 [![Codecov](https://codecov.io/gh/RedisJSON/JRedisJSON/branch/master/graph/badge.svg)](https://codecov.io/gh/RedisJSON/JRedisJSON)
 
