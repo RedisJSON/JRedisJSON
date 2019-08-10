@@ -26,7 +26,7 @@ This project is currently WIP and the interface may change. Also note that only 
     <dependency>
       <groupId>com.redislabs</groupId>
       <artifactId>jrejson</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.1</version>
     </dependency>
   </dependencies>
 ```
