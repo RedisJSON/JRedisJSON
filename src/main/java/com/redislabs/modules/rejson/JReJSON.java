@@ -29,6 +29,7 @@
 package com.redislabs.modules.rejson;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -36,6 +37,7 @@ import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.jedis.util.Pool;
 import redis.clients.jedis.util.SafeEncoder;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -188,7 +190,19 @@ public class JReJSON {
      * @return the requested object
      */
     public <T> T get(String key, Path... paths) {
-        byte[][] args = new byte[1 + paths.length][];
+    	return get(key, new TypeToken<T>() {}.getType(), paths);
+    }
+    
+    /**
+     * Gets an object
+     * @param key the key name
+     * @param type the type of return object
+     * @param paths optional one ore more paths in the object
+     * @return the requested object
+     */
+    public <T> T get(String key, Type type, Path... paths)
+	{
+    	byte[][] args = new byte[1 + paths.length][];
         int i=0;
         args[i] = SafeEncoder.encode(key);
         for (Path p :paths) {
@@ -201,8 +215,8 @@ public class JReJSON {
         	rep = conn.getClient().getBulkReply();
     	}
     	assertReplyNotError(rep);
-    	return (T)gson.fromJson(rep, Object.class);
-    }
+    	return (T)gson.fromJson(rep, type);
+	}
 
     /**
      * Sets an object at the root path
