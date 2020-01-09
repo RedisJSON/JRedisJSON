@@ -186,8 +186,21 @@ public class JReJSON {
      * @param key the key name
      * @param paths optional one ore more paths in the object
      * @return the requested object
+     * @deprecated use {@link #get(String, Class, Path...)} instead
      */
+    @Deprecated
     public <T> T get(String key, Path... paths) {
+      return (T)this.get(key, Object.class, paths);
+    }
+    
+    /**
+     * Gets an object
+     * @param key the key name
+     * @param clazz 
+     * @param paths optional one ore more paths in the object
+     * @return the requested object
+     */
+    public <T> T get(String key, Class<T> clazz, Path... paths) {
         byte[][] args = new byte[1 + paths.length][];
         int i=0;
         args[i] = SafeEncoder.encode(key);
@@ -201,7 +214,7 @@ public class JReJSON {
         	rep = conn.getClient().getBulkReply();
     	}
     	assertReplyNotError(rep);
-    	return (T)gson.fromJson(rep, Object.class);
+    	return gson.fromJson(rep, clazz);
     }
 
     /**
