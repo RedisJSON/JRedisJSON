@@ -36,6 +36,8 @@ import redis.clients.jedis.Jedis;
 
 import static junit.framework.TestCase.*;
 
+import java.util.List;
+
 public class ClientTest {
 
     /* A simple class that represents an object in real life */
@@ -51,9 +53,17 @@ public class ClientTest {
 
     private static class FooBarObject {
         public String foo;
+        public boolean fooB;
+        public int fooI;
+        public float fooF;
+        public String[] fooArr;  
 
         public FooBarObject() {
             this.foo = "bar";
+            this.fooB = true;
+            this.fooI = 6574;
+            this.fooF = 435.345f;
+            this.fooArr = new String[]{"a", "b","c"};
         }
     }
 
@@ -165,6 +175,10 @@ public class ClientTest {
         assertSame(Object.class, client.type( "foobar"));
         assertSame(Object.class, client.type( "foobar", Path.ROOT_PATH));
         assertSame(String.class, client.type( "foobar", new Path(".foo")));
+        assertSame(int.class, client.type( "foobar", new Path(".fooI")));
+        assertSame(float.class, client.type( "foobar", new Path(".fooF")));
+        assertSame(List.class, client.type( "foobar", new Path(".fooArr")));
+        assertSame(boolean.class, client.type( "foobar", new Path(".fooB")));
     }
 
     @Test(expected = Exception.class)
