@@ -179,6 +179,11 @@ public class ClientTest {
         assertSame(float.class, client.type( "foobar", new Path(".fooF")));
         assertSame(List.class, client.type( "foobar", new Path(".fooArr")));
         assertSame(boolean.class, client.type( "foobar", new Path(".fooB")));
+                
+        try {
+          client.type( "foobar", new Path(".fooErr"));
+          fail();
+        }catch(Exception e) {}
     }
 
     @Test(expected = Exception.class)
