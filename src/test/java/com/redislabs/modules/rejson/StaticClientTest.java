@@ -35,6 +35,8 @@ import redis.clients.jedis.Jedis;
 
 import static junit.framework.TestCase.*;
 
+import java.util.HashMap;
+
 public class StaticClientTest {
 
     /* A simple class that represents an object in real life */
@@ -54,6 +56,18 @@ public class StaticClientTest {
         public FooBarObject() {
             this.foo = "bar";
         }
+    }
+    
+    private static class HM {
+      public HashMap<String, String> v = new HashMap<>();
+    
+      public void set(String k, String v) {
+        this.v.put(k, v);
+      }
+      
+      public String get(String k) {
+        return this.v.get(k);
+      }
     }
 
     private Gson g;
@@ -154,6 +168,22 @@ public class StaticClientTest {
         Object expected = g.fromJson(g.toJson(obj), Object.class);
         assertTrue(expected.equals(reJSON.get("obj", new Path("bTrue"), new Path("str"))));
 
+    }
+        
+    /**
+     * https://github.com/RedisJSON/JRedisJSON/issues/16
+     */
+    @Test
+    public void objectGeneration() throws Exception {
+        jedis.flushDB();
+
+        HM articleMapOne = new HM();
+        articleMapOne.set("ar01", "Intro to Map");
+        articleMapOne.set("ar02", "Some article");
+        reJSON.set("key", articleMapOne);
+        HM dest = reJSON.<HM>get("key", HM.class, Path.ROOT_PATH);
+        assertEquals("Intro to Map", dest.get("ar01"));
+        assertEquals("Some article", dest.get("ar02"));
     }
 
     @Test(expected = Exception.class)
