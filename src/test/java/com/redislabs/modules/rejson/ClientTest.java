@@ -162,6 +162,7 @@ public class ClientTest {
     @Test
     public void typeChecksShouldSucceed() throws Exception {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
+        assertSame(Object.class, client.type( "foobar"));
         assertSame(Object.class, client.type( "foobar", Path.ROOT_PATH));
         assertSame(String.class, client.type( "foobar", new Path(".foo")));
     }

@@ -279,7 +279,7 @@ public class JReJSON {
      * @return the Java class of the requested object
      */
     public Class<?> type(String key) {
-    	return type(key);
+    	return type(key, Path.ROOT_PATH);
     }
     
     /**
