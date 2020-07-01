@@ -96,7 +96,7 @@
 		<formats>
 			<format>html</format>
 			<format>xml</format>
-		</formats>2.8.6
+		</formats>
 		<check/>
 		</configuration>
 	    </plugin>
