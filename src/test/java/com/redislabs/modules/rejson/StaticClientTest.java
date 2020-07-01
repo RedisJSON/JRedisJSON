@@ -207,11 +207,10 @@ public class StaticClientTest {
         assertFalse(jedis.exists("obj"));
     }
 
-    @Test(expected = Exception.class)
     public void delException() throws Exception {
         jedis.flushDB();
         reJSON.set("foobar", new FooBarObject(), Path.ROOT_PATH);
-        reJSON.del("foobar", new Path(".foo[1]"));
+        assertEquals(0L, reJSON.del( "foobar", new Path(".foo[1]")).longValue());
     }
 
     @SuppressWarnings("deprecation")

@@ -163,10 +163,9 @@ public class ClientTest {
         assertFalse(jedis.exists("obj"));
     }
 
-    @Test(expected = Exception.class)
     public void delException() throws Exception {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
-        client.del( "foobar", new Path(".foo[1]"));
+        assertEquals(0L, client.del( "foobar", new Path(".foo[1]")).longValue());
     }
 
     @Test
