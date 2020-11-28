@@ -80,7 +80,7 @@ public class JReJSON {
         }
     }
 
-	private Pool<Jedis> client;
+	protected Pool<Jedis> client;
     
     /**
      * Creates a client to the local machine

@@ -56,7 +56,7 @@ public class ClientTest {
         public boolean fooB;
         public int fooI;
         public float fooF;
-        public String[] fooArr;  
+        public String[] fooArr;
 
         public FooBarObject() {
             this.foo = "bar";
@@ -70,12 +70,22 @@ public class ClientTest {
     private final Gson g = new Gson();
     private final JReJSON client = new JReJSON("localhost",6379);
     private final Jedis jedis = new Jedis("localhost",6379);
-    
+
     @Before
     public void cleanup() {
         jedis.flushDB();
     }
-    
+
+    @Test
+    public void noArgsConstructorReturnsClientToLocalMachine() {
+    	final JReJSON defaultClient = new JReJSON();
+    	final JReJSON explicitLocalClient = new JReJSON("localhost", 6379);
+
+        // naive set with a path
+    	defaultClient.set("null", null, Path.ROOT_PATH);
+        assertNull(explicitLocalClient.get("null", String.class, Path.ROOT_PATH));
+    }
+
     @Test
     public void basicSetGetShouldSucceed() throws Exception {
 
@@ -178,7 +188,7 @@ public class ClientTest {
         assertSame(float.class, client.type( "foobar", new Path(".fooF")));
         assertSame(List.class, client.type( "foobar", new Path(".fooArr")));
         assertSame(boolean.class, client.type( "foobar", new Path(".fooB")));
-                
+
         try {
           client.type( "foobar", new Path(".fooErr"));
           fail();
