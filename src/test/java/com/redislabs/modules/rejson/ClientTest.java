@@ -91,7 +91,7 @@ public class ClientTest {
 
         // naive set with a path
     	client.set("null", null, Path.ROOT_PATH);
-        assertNull(client.get("null", Path.ROOT_PATH));
+        assertNull(client.get("null", String.class, Path.ROOT_PATH));
 
         // real scalar value and no path
         client.set( "str", "strong");
@@ -106,7 +106,7 @@ public class ClientTest {
         // check an update
         Path p = new Path(".str");
         client.set( "obj", "strung", p);
-        assertEquals("strung", client.get( "obj", p));
+        assertEquals("strung", client.get( "obj", String.class, p));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ClientTest {
         client.set( "obj", new IRLObject());
         Path p = new Path(".str");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
-        assertEquals("strangle", client.get( "obj", p));
+        assertEquals("strangle", client.get( "obj", String.class, p));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ClientTest {
         client.set( "obj", new IRLObject());
         Path p = new Path(".none");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
-        assertEquals("strangle", client.get( "obj", p));
+        assertEquals("strangle", client.get( "obj", String.class, p));
     }
 
     @Test(expected = Exception.class)
@@ -151,14 +151,14 @@ public class ClientTest {
         IRLObject obj = new IRLObject();
         client.set( "obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(client.get( "obj", new Path("bTrue"), new Path("str"))));
+        assertTrue(expected.equals(client.get( "obj", Object.class, new Path("bTrue"), new Path("str"))));
 
     }
 
     @Test(expected = Exception.class)
     public void getException() throws Exception {
         client.set( "test", "foo", Path.ROOT_PATH);
-        client.get( "test", new Path(".bar"));
+        client.get( "test", String.class, new Path(".bar"));
     }
 
     @Test
