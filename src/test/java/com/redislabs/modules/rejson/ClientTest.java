@@ -126,6 +126,13 @@ public class ClientTest {
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
         assertEquals("strangle", client.get( "obj", String.class, p));
     }
+    
+    @Test
+    public void setWithoutAPathDefaultsToRootPath() throws Exception {
+        client.set( "obj1", new IRLObject());
+        client.set( "obj1", "strangle", JReJSON.ExistenceModifier.MUST_EXIST);
+        assertEquals("strangle", client.get( "obj1", String.class, Path.ROOT_PATH));
+    }
 
     @Test(expected = Exception.class)
     public void setExistingPathOnlyIfNotExistsShouldFail() throws Exception {
