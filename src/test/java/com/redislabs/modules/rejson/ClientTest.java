@@ -33,8 +33,10 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertThrows;
 
 import java.util.List;
 
@@ -182,9 +184,14 @@ public class ClientTest {
         assertFalse(jedis.exists("obj"));
     }
 
+    @Test
     public void delException() throws Exception {
-        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
-        assertEquals(0L, client.del( "foobar", new Path(".foo[1]")).longValue());
+    	Exception ex = assertThrows(JedisDataException.class, () -> {
+    	        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
+    	        client.del( "foobar", new Path(".foo[1]")).longValue();
+    	});
+    	
+    	assertTrue(ex.getMessage().contains("ERR invalid index '[1]' at level 1 in path"));
     }
 
     @Test
