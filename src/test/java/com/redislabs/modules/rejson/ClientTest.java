@@ -55,7 +55,7 @@ public class ClientTest {
     }
 
     @SuppressWarnings("unused")
-    private static class FooBarObject { 
+    private static class FooBarObject {
 		public String foo;
         public boolean fooB;
         public int fooI;
@@ -128,7 +128,7 @@ public class ClientTest {
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
         assertEquals("strangle", client.get( "obj", String.class, p));
     }
-    
+
     @Test
     public void setWithoutAPathDefaultsToRootPath() throws Exception {
         client.set( "obj1", new IRLObject());
@@ -190,7 +190,7 @@ public class ClientTest {
     	        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
     	        client.del( "foobar", new Path(".foo[1]")).longValue();
     	});
-    	
+
     	assertTrue(ex.getMessage().contains("ERR invalid index '[1]' at level 1 in path"));
     }
 
@@ -221,5 +221,6 @@ public class ClientTest {
     public void type1Exception() throws Exception {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         client.type( "foobar", new Path(".foo[1]"));
-    }
+	}
+
 }
