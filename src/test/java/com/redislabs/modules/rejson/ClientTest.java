@@ -28,17 +28,23 @@
 
 package com.redislabs.modules.rejson;
 
-import com.google.gson.Gson;
-
-import org.junit.Before;
-import org.junit.Test;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisDataException;
-
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertSame;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertThrows;
 
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.gson.Gson;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 public class ClientTest {
 
