@@ -135,7 +135,7 @@ public class JReJSON {
     private static Path getSingleOptionalPath(Path... path) {
         // check for 0, 1 or more paths
         if (1 > path.length) {   // default to root
-            return Path.RootPath();
+            return Path.ROOT_PATH;
         }
         if (1 == path.length) {  // take 1
             return path[0];
