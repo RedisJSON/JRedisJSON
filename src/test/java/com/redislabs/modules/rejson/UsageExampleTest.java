@@ -28,6 +28,8 @@
 
 package com.redislabs.modules.rejson;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
@@ -50,18 +52,26 @@ public class UsageExampleTest {
         // Setting a Redis key name _foo_ to the string _"bar"_, and reading it back
         reJSON.set("foo", "bar");
         String s0 = reJSON.get("foo");
+        assertEquals("bar", s0);
 
         // Omitting the path (usually) defaults to the root path, so the call above to `get()` and the following ones
         // are basically interchangeable
-        String s1 = reJSON.get("foo", new Path("."));
-        String s2 = reJSON.get( "foo", Path.ROOT_PATH);
+        String s1 = reJSON.get("foo", String.class, new Path("."));
+        String s2 = reJSON.get( "foo", String.class, Path.ROOT_PATH);
+        
+        assertEquals("bar", s1);
+        assertEquals("bar", s2);
 
         // Any Gson-able object can be set and updated
-        reJSON.set("obj", new Object());					         // just an empty object
+        reJSON.set("obj", new Object()); // just an empty object
         reJSON.set("obj", null, new Path(".zilch"));
         Path p = new Path(".whatevs");
         reJSON.set("obj", true, p);
         reJSON.set("obj", 42, p);
-        reJSON.del("obj", p);                                    // back to almost nothing
+        
+        Object obj = reJSON.get("obj");
+        assertEquals("{zilch=null, whatevs=42.0}", obj.toString());
+        
+        reJSON.del("obj", p); // back to almost nothing
     }
 }
