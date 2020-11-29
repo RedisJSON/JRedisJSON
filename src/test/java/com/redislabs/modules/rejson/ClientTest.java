@@ -41,6 +41,7 @@ import java.util.List;
 public class ClientTest {
 
     /* A simple class that represents an object in real life */
+	@SuppressWarnings("unused")
     private static class IRLObject {
         public String str;
         public boolean bTrue;
@@ -51,8 +52,9 @@ public class ClientTest {
         }
     }
 
-    private static class FooBarObject {
-        public String foo;
+    @SuppressWarnings("unused")
+    private static class FooBarObject { 
+		public String foo;
         public boolean fooB;
         public int fooI;
         public float fooF;
