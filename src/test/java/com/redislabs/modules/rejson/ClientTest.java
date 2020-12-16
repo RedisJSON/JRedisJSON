@@ -62,7 +62,7 @@ public class ClientTest {
 
     @SuppressWarnings("unused")
     private static class FooBarObject {
-		public String foo;
+        public String foo;
         public boolean fooB;
         public int fooI;
         public float fooF;
