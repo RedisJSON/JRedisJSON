@@ -108,7 +108,7 @@ public class JReJSON {
         this.client = jedis;
     }
 
-	/**
+    /**
      *  Helper to check for errors and throw them as an exception
      * @param str the reply string to "analyze"
      * @throws RuntimeException
