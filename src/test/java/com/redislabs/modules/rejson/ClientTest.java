@@ -34,9 +34,10 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertSame;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertThrows;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,6 @@ import org.junit.Test;
 import com.google.gson.Gson;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisDataException;
 
 public class ClientTest {
 
@@ -74,6 +74,63 @@ public class ClientTest {
             this.fooI = 6574;
             this.fooF = 435.345f;
             this.fooArr = new String[]{"a", "b","c"};
+        }
+    }
+
+    private static class Baz {
+        private String quuz;
+        private String grault;
+        private String waldo;
+
+        public Baz(final String quuz, final String grault, final String waldo) {
+            this.quuz = quuz;
+            this.grault = grault;
+            this.waldo = waldo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null)
+                return false;
+            if (getClass() != o.getClass())
+                return false;
+            Baz other = (Baz) o;
+
+            return Objects.equals(quuz, other.quuz) && //
+                    Objects.equals(grault, other.grault) && //
+                    Objects.equals(waldo, other.waldo);
+        }
+    }
+
+    private static class Qux {
+        private String quux;
+        private String corge;
+        private String garply;
+        private Baz baz;
+
+        public Qux(final String quux, final String corge, final String garply, final Baz baz) {
+            this.quux = quux;
+            this.corge = corge;
+            this.garply = garply;
+            this.baz = baz;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null)
+                return false;
+            if (getClass() != o.getClass())
+                return false;
+            Qux other = (Qux) o;
+
+            return Objects.equals(quux, other.quux) && //
+                    Objects.equals(corge, other.corge) && //
+                    Objects.equals(garply, other.garply) && //
+                    Objects.equals(baz, other.baz);
         }
     }
 
@@ -223,6 +280,81 @@ public class ClientTest {
     public void type1Exception() throws Exception {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         client.type( "foobar", new Path(".foo[1]"));
-	}
+    }
 
+    @Test
+    public void testMultipleGetAtRootPathAllKeysExist() throws Exception {
+        Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
+        Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
+        Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
+        Qux qux2 = new Qux("quux2", "corge2", "garply2", baz2);
+
+        client.set("qux1", qux1);
+        client.set("qux2", qux2);
+
+        List<Qux> oneQux = client.mget(Qux.class, "qux1");
+        List<Qux> allQux = client.mget(Qux.class, "qux1", "qux2");
+
+        assertEquals(1, oneQux.size());
+        assertEquals(2, allQux.size());
+
+        assertEquals(qux1, oneQux.get(0));
+
+        Qux testQux1 = allQux.stream() //
+                .filter(q -> q.quux.equals("quux1")) //
+                .findFirst() //
+                .orElseThrow(() -> new NullPointerException(""));
+        Qux testQux2 = allQux.stream() //
+                .filter(q -> q.quux.equals("quux2")) //
+                .findFirst() //
+                .orElseThrow(() -> new NullPointerException(""));
+
+        assertEquals(qux1, testQux1);
+        assertEquals(qux2, testQux2);
+    }
+
+    @Test
+    public void testMultipleGetAtRootPathWithMissingKeys() throws Exception {
+        Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
+        Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
+        Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
+        Qux qux2 = new Qux("quux2", "corge2", "garply2", baz2);
+
+        client.set("qux1", qux1);
+        client.set("qux2", qux2);
+
+        List<Qux> allQux = client.mget(Qux.class, "qux1", "qux2", "qux3");
+
+        assertEquals(3, allQux.size());
+        assertEquals(null, allQux.get(2));
+        allQux.removeAll(Collections.singleton(null));
+        assertEquals(2, allQux.size());
+    }
+
+    @Test
+    public void testMultipleGetWithPathPathAllKeysExist() throws Exception {
+        Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
+        Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
+        Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
+        Qux qux2 = new Qux("quux2", "corge2", "garply2", baz2);
+
+        client.set("qux1", qux1);
+        client.set("qux2", qux2);
+
+        List<Baz> allBaz = client.mget(new Path("baz"), Baz.class, "qux1", "qux2");
+
+        assertEquals(2, allBaz.size());
+
+        Baz testBaz1 = allBaz.stream() //
+                .filter(b -> b.quuz.equals("quuz1")) //
+                .findFirst() //
+                .orElseThrow(() -> new NullPointerException(""));
+        Baz testBaz2 = allBaz.stream() //
+                .filter(q -> q.quuz.equals("quuz2")) //
+                .findFirst() //
+                .orElseThrow(() -> new NullPointerException(""));
+
+        assertEquals(baz1, testBaz1);
+        assertEquals(baz2, testBaz2);
+    }
 }
