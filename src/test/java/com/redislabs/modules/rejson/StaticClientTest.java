@@ -28,18 +28,25 @@
 
 package com.redislabs.modules.rejson;
 
-import com.google.gson.Gson;
-import org.junit.Before;
-import org.junit.Test;
-import redis.clients.jedis.Jedis;
-
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertSame;
+import static junit.framework.TestCase.assertTrue;
 
 import java.util.HashMap;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.gson.Gson;
+
+import redis.clients.jedis.Jedis;
 
 public class StaticClientTest {
 
     /* A simple class that represents an object in real life */
+    @SuppressWarnings("unused")
     private static class IRLObject {
         public String str;
         public boolean bTrue;
@@ -50,6 +57,7 @@ public class StaticClientTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private static class FooBarObject {
         public String foo;
 
@@ -86,7 +94,7 @@ public class StaticClientTest {
 
         // naive set with a path
         reJSON.set("null", null, Path.ROOT_PATH);
-        assertNull(reJSON.get("null", Path.ROOT_PATH));
+        assertNull(reJSON.get("null", String.class, Path.ROOT_PATH));
 
         // real scalar value and no path
         reJSON.set("str", "strong");
@@ -101,7 +109,7 @@ public class StaticClientTest {
         // check an update
         Path p = new Path(".str");
         reJSON.set("obj", "strung", p);
-        assertEquals("strung", reJSON.get("obj", p));
+        assertEquals("strung", reJSON.get("obj", String.class, p));
     }
 
     @Test
@@ -111,7 +119,7 @@ public class StaticClientTest {
         reJSON.set("obj", new IRLObject());
         Path p = new Path(".str");
         reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
-        assertEquals("strangle", reJSON.get("obj", p));
+        assertEquals("strangle", reJSON.get("obj", String.class, p));
     }
 
     @Test
@@ -121,7 +129,7 @@ public class StaticClientTest {
         reJSON.set("obj", new IRLObject());
         Path p = new Path(".none");
         reJSON.set("obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
-        assertEquals("strangle", reJSON.get("obj", p));
+        assertEquals("strangle", reJSON.get("obj", String.class, p));
     }
 
     @Test(expected = Exception.class)
@@ -166,7 +174,7 @@ public class StaticClientTest {
         IRLObject obj = new IRLObject();
         reJSON.set("obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(reJSON.get("obj", new Path("bTrue"), new Path("str"))));
+        assertTrue(expected.equals(reJSON.get("obj", Object.class, new Path("bTrue"), new Path("str"))));
 
     }
         
@@ -190,7 +198,7 @@ public class StaticClientTest {
     public void getException() throws Exception {
         jedis.flushDB();
         reJSON.set("test", "foo", Path.ROOT_PATH);
-        reJSON.get("test", new Path(".bar"));
+        reJSON.get("test", String.class, new Path(".bar"));
     }
 
     @Test

@@ -81,27 +81,27 @@ public class JReJSON {
     }
 
 	private Pool<Jedis> client;
-    
+
     /**
      * Creates a client to the local machine
      */
     public JReJSON() {
         this("localhost", 6379);
     }
-    
+
     /**
      * Creates a client to the specific host/post
-     * 
+     *
      * @param host Redis host
      * @param port Redis port
      */
     public JReJSON(String host, int port) {
         this(new JedisPool(host, port));
     }
-    
+
     /**
      * Creates a client using provided Jedis pool
-     * 
+     *
      * @param jedis bring your own Jedis pool
      */
     public JReJSON(Pool<Jedis> jedis) {
@@ -135,12 +135,12 @@ public class JReJSON {
     private static Path getSingleOptionalPath(Path... path) {
         // check for 0, 1 or more paths
         if (1 > path.length) {   // default to root
-            return Path.RootPath();
+            return Path.ROOT_PATH;
         }
         if (1 == path.length) {  // take 1
             return path[0];
         }
-         
+
         // throw out the baby with the water
         throw new RuntimeException("Only a single optional path is allowed");
     }
@@ -154,7 +154,7 @@ public class JReJSON {
     	return del(key, Path.ROOT_PATH);
     }
 
-    
+
     /**
      * Deletes a path
      * @param key the key name
@@ -171,7 +171,7 @@ public class JReJSON {
     		return conn.getClient().getIntegerReply();
     	}
     }
-    
+
     /**
      * Gets an object at the root path
      * @param key the key name
@@ -180,7 +180,7 @@ public class JReJSON {
     public <T> T get(String key) {
     	return get(key, Path.ROOT_PATH);
     }
-    
+
     /**
      * Gets an object
      * @param key the key name
@@ -192,11 +192,11 @@ public class JReJSON {
     public <T> T get(String key, Path... paths) {
       return (T)this.get(key, Object.class, paths);
     }
-    
+
     /**
      * Gets an object
      * @param key the key name
-     * @param clazz 
+     * @param clazz
      * @param paths optional one ore more paths in the object
      * @return the requested object
      */
@@ -226,7 +226,7 @@ public class JReJSON {
     public void set(String key, Object object, ExistenceModifier flag) {
     	set(key, object, flag, Path.ROOT_PATH);
     }
-    
+
     /**
      * Sets an object in the root path
      * @param key the key name
@@ -234,8 +234,8 @@ public class JReJSON {
      */
     public void set(String key, Object object) {
         set(key, object, ExistenceModifier.DEFAULT, Path.ROOT_PATH);
-    }    
-    
+    }
+
     /**
      * Sets an object without caring about target path existing
      * @param key the key name
@@ -245,7 +245,7 @@ public class JReJSON {
     public void set(String key, Object object, Path path) {
         set(key, object, ExistenceModifier.DEFAULT, path);
     }
-    
+
     /**
      * Sets an object
      * @param key the key name
@@ -272,7 +272,7 @@ public class JReJSON {
     	}
         assertReplyOK(status);
     }
-    
+
     /**
      * Gets the class of an object at the root path
      * @param key the key name
@@ -281,7 +281,7 @@ public class JReJSON {
     public Class<?> type(String key) {
     	return type(key, Path.ROOT_PATH);
     }
-    
+
     /**
      * Gets the class of an object
      * @param key the key name
@@ -323,7 +323,7 @@ public class JReJSON {
                 throw new java.lang.RuntimeException(rep);
         }
     }
-    
+
 
     /**
      * Deletes a path
@@ -331,7 +331,7 @@ public class JReJSON {
      * @param key the key name
      * @param path optional single path in the object, defaults to root
      * @return the number of paths deleted (0 or 1)
-     * @deprecated use {@link #del(String, Path)} instead 
+     * @deprecated use {@link #del(String, Path)} instead
      */
     @Deprecated
     public static Long del(Jedis conn, String key, Path... path) {
@@ -417,7 +417,7 @@ public class JReJSON {
     public static void set(Jedis conn, String key, Object object, Path... path) {
         set(conn,key, object, ExistenceModifier.DEFAULT, path);
     }
-    
+
     /**
      * Gets the class of an object
      * @param conn the Jedis connection
@@ -460,7 +460,7 @@ public class JReJSON {
                 throw new java.lang.RuntimeException(rep);
         }
     }
-    
+
     private Jedis getConnection() {
         return this.client.getResource();
     }

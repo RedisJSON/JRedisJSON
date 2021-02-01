@@ -28,19 +28,28 @@
 
 package com.redislabs.modules.rejson;
 
-import com.google.gson.Gson;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertSame;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertThrows;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.gson.Gson;
+
 import redis.clients.jedis.Jedis;
-
-import static junit.framework.TestCase.*;
-
-import java.util.List;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 public class ClientTest {
 
     /* A simple class that represents an object in real life */
+	@SuppressWarnings("unused")
     private static class IRLObject {
         public String str;
         public boolean bTrue;
@@ -51,12 +60,13 @@ public class ClientTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private static class FooBarObject {
         public String foo;
         public boolean fooB;
         public int fooI;
         public float fooF;
-        public String[] fooArr;  
+        public String[] fooArr;
 
         public FooBarObject() {
             this.foo = "bar";
@@ -70,18 +80,28 @@ public class ClientTest {
     private final Gson g = new Gson();
     private final JReJSON client = new JReJSON("localhost",6379);
     private final Jedis jedis = new Jedis("localhost",6379);
-    
+
     @Before
     public void cleanup() {
         jedis.flushDB();
     }
-    
+
+    @Test
+    public void noArgsConstructorReturnsClientToLocalMachine() {
+    	final JReJSON defaultClient = new JReJSON();
+    	final JReJSON explicitLocalClient = new JReJSON("localhost", 6379);
+
+        // naive set with a path
+    	defaultClient.set("null", null, Path.ROOT_PATH);
+        assertNull(explicitLocalClient.get("null", String.class, Path.ROOT_PATH));
+    }
+
     @Test
     public void basicSetGetShouldSucceed() throws Exception {
 
         // naive set with a path
     	client.set("null", null, Path.ROOT_PATH);
-        assertNull(client.get("null", Path.ROOT_PATH));
+        assertNull(client.get("null", String.class, Path.ROOT_PATH));
 
         // real scalar value and no path
         client.set( "str", "strong");
@@ -96,7 +116,7 @@ public class ClientTest {
         // check an update
         Path p = new Path(".str");
         client.set( "obj", "strung", p);
-        assertEquals("strung", client.get( "obj", p));
+        assertEquals("strung", client.get( "obj", String.class, p));
     }
 
     @Test
@@ -104,7 +124,7 @@ public class ClientTest {
         client.set( "obj", new IRLObject());
         Path p = new Path(".str");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
-        assertEquals("strangle", client.get( "obj", p));
+        assertEquals("strangle", client.get( "obj", String.class, p));
     }
 
     @Test
@@ -112,7 +132,14 @@ public class ClientTest {
         client.set( "obj", new IRLObject());
         Path p = new Path(".none");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
-        assertEquals("strangle", client.get( "obj", p));
+        assertEquals("strangle", client.get( "obj", String.class, p));
+    }
+
+    @Test
+    public void setWithoutAPathDefaultsToRootPath() throws Exception {
+        client.set( "obj1", new IRLObject());
+        client.set( "obj1", "strangle", JReJSON.ExistenceModifier.MUST_EXIST);
+        assertEquals("strangle", client.get( "obj1", String.class, Path.ROOT_PATH));
     }
 
     @Test(expected = Exception.class)
@@ -141,14 +168,14 @@ public class ClientTest {
         IRLObject obj = new IRLObject();
         client.set( "obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(client.get( "obj", new Path("bTrue"), new Path("str"))));
+        assertTrue(expected.equals(client.get( "obj", Object.class, new Path("bTrue"), new Path("str"))));
 
     }
 
     @Test(expected = Exception.class)
     public void getException() throws Exception {
         client.set( "test", "foo", Path.ROOT_PATH);
-        client.get( "test", new Path(".bar"));
+        client.get( "test", String.class, new Path(".bar"));
     }
 
     @Test
@@ -163,9 +190,14 @@ public class ClientTest {
         assertFalse(jedis.exists("obj"));
     }
 
+    @Test
     public void delException() throws Exception {
-        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
-        assertEquals(0L, client.del( "foobar", new Path(".foo[1]")).longValue());
+    	Exception ex = assertThrows(JedisDataException.class, () -> {
+    	        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
+    	        client.del( "foobar", new Path(".foo[1]")).longValue();
+    	});
+
+    	assertTrue(ex.getMessage().contains("ERR invalid index '[1]' at level 1 in path"));
     }
 
     @Test
@@ -178,7 +210,7 @@ public class ClientTest {
         assertSame(float.class, client.type( "foobar", new Path(".fooF")));
         assertSame(List.class, client.type( "foobar", new Path(".fooArr")));
         assertSame(boolean.class, client.type( "foobar", new Path(".fooB")));
-                
+
         try {
           client.type( "foobar", new Path(".fooErr"));
           fail();
@@ -195,5 +227,6 @@ public class ClientTest {
     public void type1Exception() throws Exception {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         client.type( "foobar", new Path(".foo[1]"));
-    }
+	}
+
 }
