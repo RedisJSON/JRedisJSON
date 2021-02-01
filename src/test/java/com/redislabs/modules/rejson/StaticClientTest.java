@@ -46,7 +46,7 @@ import redis.clients.jedis.Jedis;
 public class StaticClientTest {
 
     /* A simple class that represents an object in real life */
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     private static class IRLObject {
         public String str;
         public boolean bTrue;
@@ -57,7 +57,7 @@ public class StaticClientTest {
         }
     }
 
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     private static class FooBarObject {
         public String foo;
 
