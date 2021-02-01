@@ -191,13 +191,9 @@ public class ClientTest {
     }
 
     @Test
-    public void delException() throws Exception {
-    	Exception ex = assertThrows(JedisDataException.class, () -> {
-    	        client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
-    	        client.del( "foobar", new Path(".foo[1]")).longValue();
-    	});
-
-    	assertTrue(ex.getMessage().contains("ERR invalid index '[1]' at level 1 in path"));
+    public void delNonExistingPathsAreIgnored() throws Exception {
+	    client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
+	    client.del( "foobar", new Path(".foo[1]")).longValue();
     }
 
     @Test
