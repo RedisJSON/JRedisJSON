@@ -28,6 +28,12 @@
 
 package com.redislabs.modules.rejson;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.google.gson.Gson;
 
 import redis.clients.jedis.Jedis;
@@ -35,9 +41,6 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.jedis.util.Pool;
 import redis.clients.jedis.util.SafeEncoder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * JReJSON is the main ReJSON client class, wrapping connection management and all ReJSON commands
@@ -49,6 +52,7 @@ public class JReJSON {
     private enum Command implements ProtocolCommand {
         DEL("JSON.DEL"),
         GET("JSON.GET"),
+        MGET("JSON.MGET"),
         SET("JSON.SET"),
         TYPE("JSON.TYPE");
         private final byte[] raw;
@@ -215,6 +219,46 @@ public class JReJSON {
     	}
     	assertReplyNotError(rep);
     	return gson.fromJson(rep, clazz);
+    }
+
+    /**
+     * Returns the documents from multiple keys. Non-existing keys are reported as
+     * null.
+     * 
+     * @param <T>   target class to serialize results
+     * @param clazz target class to serialize results
+     * @param keys  keys for the JSON documents
+     * @return a List of documents rooted at path
+     */
+    public <T> List<T> mget(Class<T> clazz, String... keys) {
+        return mget(Path.ROOT_PATH, clazz, keys);
+    }
+
+    /**
+     * Returns the values at path from multiple keys. Non-existing keys and
+     * non-existing paths are reported as null.
+     * 
+     * @param path  common path across all documents to root the results on
+     * @param <T>   target class to serialize results
+     * @param clazz target class to serialize results
+     * @param keys  keys for the JSON documents
+     * @return a List of documents rooted at path
+     */
+    public <T> List<T> mget(Path path, Class<T> clazz, String... keys) {
+        String[] args = Stream //
+                .of(keys, new String[] { path.toString() }) //
+                .flatMap(Stream::of) //
+                .toArray(String[]::new);
+
+        List<String> rep;
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.MGET, args);
+            rep = conn.getClient().getMultiBulkReply();
+        }
+
+        return rep.stream() //
+                .map(r -> gson.fromJson(r, clazz)) //
+                .collect(Collectors.toList());
     }
 
     /**
