@@ -326,7 +326,7 @@ public class ClientTest {
         List<Qux> allQux = client.mget(Qux.class, "qux1", "qux2", "qux3");
 
         assertEquals(3, allQux.size());
-        assertEquals(null, allQux.get(2));
+        assertNull(allQux.get(2));
         allQux.removeAll(Collections.singleton(null));
         assertEquals(2, allQux.size());
     }
