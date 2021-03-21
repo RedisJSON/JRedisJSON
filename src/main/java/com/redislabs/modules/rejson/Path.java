@@ -76,6 +76,6 @@ public class Path {
     
     @Override
     public int hashCode() {
-        return 31 * strPath.hashCode();
+        return strPath.hashCode();
     }
 }
