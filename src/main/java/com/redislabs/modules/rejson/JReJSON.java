@@ -29,7 +29,7 @@
 package com.redislabs.modules.rejson;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +38,7 @@ import com.google.gson.Gson;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.jedis.util.Pool;
 import redis.clients.jedis.util.SafeEncoder;
@@ -54,7 +55,15 @@ public class JReJSON {
         GET("JSON.GET"),
         MGET("JSON.MGET"),
         SET("JSON.SET"),
-        TYPE("JSON.TYPE");
+        TYPE("JSON.TYPE"),
+        STRAPPEND("JSON.STRAPPEND"),
+        STRLEN("JSON.STRLEN"),
+        ARRAPPEND("JSON.ARRAPPEND"),
+        ARRINDEX("JSON.ARRINDEX"),
+        ARRINSERT("JSON.ARRINSERT"),
+        ARRLEN("JSON.ARRLEN"),
+        ARRPOP("JSON.ARRPOP"),
+        ARRTRIM("JSON.ARRTRIM");
         private final byte[] raw;
 
         Command(String alt) {
@@ -192,6 +201,7 @@ public class JReJSON {
      * @return the requested object
      * @deprecated use {@link #get(String, Class, Path...)} instead
      */
+    @SuppressWarnings("unchecked")
     @Deprecated
     public <T> T get(String key, Path... paths) {
       return (T)this.get(key, Object.class, paths);
@@ -224,7 +234,7 @@ public class JReJSON {
     /**
      * Returns the documents from multiple keys. Non-existing keys are reported as
      * null.
-     * 
+     *
      * @param <T>   target class to serialize results
      * @param clazz target class to serialize results
      * @param keys  keys for the JSON documents
@@ -237,7 +247,7 @@ public class JReJSON {
     /**
      * Returns the values at path from multiple keys. Non-existing keys and
      * non-existing paths are reported as null.
-     * 
+     *
      * @param path  common path across all documents to root the results on
      * @param <T>   target class to serialize results
      * @param clazz target class to serialize results
@@ -367,7 +377,6 @@ public class JReJSON {
                 throw new java.lang.RuntimeException(rep);
         }
     }
-
 
     /**
      * Deletes a path
@@ -507,5 +516,253 @@ public class JReJSON {
 
     private Jedis getConnection() {
         return this.client.getResource();
+    }
+
+    /**
+     * Append the value(s) the string at path.
+     *
+     * Returns the string's new size.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonstrappend}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @param objects objects One or more elements to be added to the array
+     * @return the size of the modified string
+     */
+    public Long strAppend(String key, Path path, Object... objects) {
+        List<byte[]> args = new ArrayList<>();
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
+
+        args.addAll(Arrays.stream(objects) //
+                .map(object -> SafeEncoder.encode(gson.toJson(object))) //
+                .collect(Collectors.toList()));
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.STRAPPEND, args.toArray(new byte[args.size()][]));
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Report the length of the JSON String at path in key.
+     * Path defaults to root if not provided.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonstrlen}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @return the size of string at path. If the key or path do not exist, null is returned.
+     */
+    public Long strLen(String key, Path path) {
+        byte[][] args = new byte[2][];
+        args[0] = SafeEncoder.encode(key);
+        args[1] = SafeEncoder.encode(path.toString());
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.STRLEN, args);
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Appends elements into the array at path.
+     *
+     * Returns the array's new size.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrappend}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @param objects one or more elements to be added to the array
+     * @return the size of the modified array
+     */
+    public Long arrAppend(String key, Path path, Object... objects) {
+        List<byte[]> args = new ArrayList<>();
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
+
+        args.addAll(Arrays.stream(objects) //
+                .map(object -> SafeEncoder.encode(gson.toJson(object))) //
+                .collect(Collectors.toList()));
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRAPPEND, args.toArray(new byte[args.size()][]));
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Finds the index of the first occurrence of a scalar JSON value in the array
+     * at the given path.
+     *
+     * If the item is not found, it returns -1. If called on a key path that is not
+     * an array, it throws an error.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrindex}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @param scalar the JSON scalar to search for
+     * @return the index of the element if found, -1 if not found
+     */
+    public Long arrIndex(String key, Path path, Object scalar) {
+        byte[][] args = new byte[3][];
+        args[0] = SafeEncoder.encode(key);
+        args[1] = SafeEncoder.encode(path.toString());
+        args[2] = SafeEncoder.encode(gson.toJson(scalar));
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRINDEX, args);
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Insert element(s) into the array at path before the index (shifts to the right).
+     * The index must be in the array's range. Inserting at index 0 prepends to the array.
+     * Negative index values are interpreted as starting from the end.
+     *
+     * Returns the array's new size.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrinsert}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @param index position in the array to insert the value(s)
+     * @param objects one or more elements to be added to the array
+     * @return the size of the modified array
+     */
+    public Long arrInsert(String key, Path path, Long index, Object... objects) {
+        List<byte[]> args = new ArrayList<>();
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
+        args.add(Protocol.toByteArray(index));
+
+        args.addAll(Arrays.stream(objects) //
+                .map(object -> SafeEncoder.encode(gson.toJson(object))) //
+                .collect(Collectors.toList()));
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRINSERT, args.toArray(new byte[args.size()][]));
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Get the number of elements for an array field (for a given path)
+     *
+     * If called on a key path that is not an array, it will throw an error.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrlen}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @return the size of array at path
+     */
+    public Long arrLen(String key, Path path) {
+        byte[][] args = new byte[2][];
+        args[0] = SafeEncoder.encode(key);
+        args[1] = SafeEncoder.encode(path.toString());
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRLEN, args);
+            return conn.getClient().getIntegerReply();
+        }
+    }
+
+    /**
+     * Remove and return element from the index in the array.
+     *
+     * path defaults to root if not provided. index is the position in the array to start
+     * popping from (defaults to -1, meaning the last element). Out of range indices are
+     * rounded to their respective array ends. Popping an empty array yields null.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
+     *
+     * @param key the key of the value
+     * @param clazz target class to serialize results
+     * @param path the path of the value
+     * @param index the position in the array to start popping from
+     * @return the popped JSON value.
+     */
+    public <T> T arrPop(String key, Class<T> clazz, Path path, Long index) {
+        List<byte[]> args = new ArrayList<>();
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(path != null ? path.toString() :Path.ROOT_PATH.toString()));
+        args.add(Protocol.toByteArray(index != null ? index : -1));
+
+        String rep;
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRPOP, args.toArray(new byte[args.size()][]));
+            rep = conn.getClient().getBulkReply();
+        }
+        assertReplyNotError(rep);
+        return gson.fromJson(rep, clazz);
+    }
+
+    /**
+     * Remove and return element from the index in the array.
+     *
+     * path defaults to root if not provided. index is the position in the array to start
+     * popping from (defaults to -1, meaning the last element). Out of range indices are
+     * rounded to their respective array ends. Popping an empty array yields null.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
+     *
+     * @param key the key of the value
+     * @param clazz target class to serialize results
+     * @param path the path of the value
+     * @return the popped JSON value.
+     */
+    public <T> T arrPop(String key, Class<T> clazz, Path path) {
+        return arrPop(key, clazz, path, null);
+    }
+
+    /**
+     * Remove and return element from the index in the array.
+     *
+     * path defaults to root if not provided. index is the position in the array to start
+     * popping from (defaults to -1, meaning the last element). Out of range indices are
+     * rounded to their respective array ends. Popping an empty array yields null.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
+     *
+     * @param key the key of the value
+     * @param clazz target class to serialize results
+     * @return the popped JSON value.
+     */
+    public <T> T arrPop(String key, Class<T> clazz) {
+        return arrPop(key, clazz, null, null);
+    }
+
+    /**
+     * Trim an array so that it contains only the specified inclusive range of elements.
+     *
+     * This command is extremely forgiving and using it with out of range indexes will not
+     * produce an error. If start is larger than the array's size or start > stop , the result
+     * will be an empty array. If start is < 0 then it will be treated as 0. If stop is larger
+     * than the end of the array, it will be treated like the last element in it.
+     *
+     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrtrim}</a>.
+     *
+     * @param key the key of the value
+     * @param path the path of the value
+     * @param start the start of the range
+     * @param stop the end of the range
+     * @return the array's new size
+     */
+    public Long arrTrim(String key, Path path, Long start, Long stop) {
+        List<byte[]> args = new ArrayList<>();
+        args.add(SafeEncoder.encode(key));
+        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
+        args.add(Protocol.toByteArray(start));
+        args.add(Protocol.toByteArray(stop));
+
+        try (Jedis conn = getConnection()) {
+            conn.getClient().sendCommand(Command.ARRTRIM, args.toArray(new byte[args.size()][]));
+            return conn.getClient().getIntegerReply();
+        }
     }
 }

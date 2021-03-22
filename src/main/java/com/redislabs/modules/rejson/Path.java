@@ -55,4 +55,27 @@ public class Path {
     public String toString() {
         return strPath;
     }
+    
+    /**
+     * Static factory method
+     * 
+     * @param strPath
+     * @return
+     */
+    public static Path of(final String strPath) {
+        return new Path(strPath);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof Path)) return false;
+        if (obj == this) return true;
+        return this.toString().equals(((Path) obj).toString());
+    }
+    
+    @Override
+    public int hashCode() {
+        return strPath.hashCode();
+    }
 }
