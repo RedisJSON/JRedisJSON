@@ -6,7 +6,7 @@
 
     <groupId>com.redislabs</groupId>
     <artifactId>jrejson</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     
     <name>JReJSON</name>
 	<description>Official client for ReJSON</description>
