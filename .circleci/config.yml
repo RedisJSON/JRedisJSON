@@ -7,10 +7,10 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk
-      
+
       - image: redislabs/rejson:edge
         port: 6379:6379
-      
+
     working_directory: ~/repo
 
     environment:
@@ -34,19 +34,21 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
-        
+
       # run tests!
-      - run: mvn integration-test 
-      - run: mvn cobertura:cobertura          
-      - run: bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}                
-      
+      - run: mvn integration-test
+      - run: mvn cobertura:cobertura
+      - run: bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}
+
       - run: mvn -s .circleci.settings.xml -DskipTests deploy
-      
+
 workflows:
   version: 2
   commit:
     jobs:
-      - build
+      - build:
+          context:
+            - common
   nightly:
     triggers:
       - schedule:
@@ -56,4 +58,6 @@ workflows:
               only:
                 - master
     jobs:
-      - build
+      - build:
+          context:
+            - common
