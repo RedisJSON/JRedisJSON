@@ -48,6 +48,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 public class ClientTest {
 
@@ -157,7 +158,7 @@ public class ClientTest {
     }
 
     @Test
-    public void basicSetGetShouldSucceed() throws Exception {
+    public void basicSetGetShouldSucceed() {
 
         // naive set with a path
     	client.set("null", null, Path.ROOT_PATH);
@@ -180,7 +181,7 @@ public class ClientTest {
     }
 
     @Test
-    public void setExistingPathOnlyIfExistsShouldSucceed() throws Exception {
+    public void setExistingPathOnlyIfExistsShouldSucceed() {
         client.set( "obj", new IRLObject());
         Path p = Path.of(".str");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
@@ -188,7 +189,7 @@ public class ClientTest {
     }
 
     @Test
-    public void setNonExistingOnlyIfNotExistsShouldSucceed() throws Exception {
+    public void setNonExistingOnlyIfNotExistsShouldSucceed() {
         client.set( "obj", new IRLObject());
         Path p = Path.of(".none");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
@@ -196,34 +197,34 @@ public class ClientTest {
     }
 
     @Test
-    public void setWithoutAPathDefaultsToRootPath() throws Exception {
+    public void setWithoutAPathDefaultsToRootPath() {
         client.set( "obj1", new IRLObject());
         client.set( "obj1", "strangle", JReJSON.ExistenceModifier.MUST_EXIST);
         assertEquals("strangle", client.get( "obj1", String.class, Path.ROOT_PATH));
     }
 
-    @Test(expected = Exception.class)
-    public void setExistingPathOnlyIfNotExistsShouldFail() throws Exception {
+    @Test(expected = NullPointerException.class)
+    public void setExistingPathOnlyIfNotExistsShouldFail() {
         client.set( "obj", new IRLObject());
         Path p = Path.of(".str");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.NOT_EXISTS, p);
     }
 
-    @Test(expected = Exception.class)
-    public void setNonExistingPathOnlyIfExistsShouldFail() throws Exception {
+    @Test(expected = NullPointerException.class)
+    public void setNonExistingPathOnlyIfExistsShouldFail() {
         client.set( "obj", new IRLObject());
         Path p = Path.of(".none");
         client.set( "obj", "strangle", JReJSON.ExistenceModifier.MUST_EXIST, p);
     }
 
-    @Test(expected = Exception.class)
-    public void setException() throws Exception {
+    @Test(expected = JedisDataException.class)
+    public void setException() {
         // should error on non root path for new key
         client.set( "test", "bar", Path.of(".foo"));
     }
 
     @Test
-    public void getMultiplePathsShouldSucceed() throws Exception {
+    public void getMultiplePathsShouldSucceed() {
         // check multiple paths
         IRLObject obj = new IRLObject();
         client.set( "obj", obj);
@@ -232,14 +233,14 @@ public class ClientTest {
 
     }
 
-    @Test(expected = Exception.class)
-    public void getException() throws Exception {
+    @Test(expected = JedisDataException.class)
+    public void getException() {
         client.set( "test", "foo", Path.ROOT_PATH);
         client.get( "test", String.class, Path.of(".bar"));
     }
 
     @Test
-    public void delValidShouldSucceed() throws Exception {
+    public void delValidShouldSucceed() {
         // check deletion of a single path
         client.set( "obj", new IRLObject(), Path.ROOT_PATH);
         client.del( "obj", Path.of(".str"));
@@ -251,13 +252,13 @@ public class ClientTest {
     }
 
     @Test
-    public void delNonExistingPathsAreIgnored() throws Exception {
+    public void delNonExistingPathsAreIgnored() {
 	    client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
 	    client.del( "foobar", Path.of(".foo[1]")).longValue();
     }
 
     @Test
-    public void typeChecksShouldSucceed() throws Exception {
+    public void typeChecksShouldSucceed() {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         assertSame(Object.class, client.type( "foobar"));
         assertSame(Object.class, client.type( "foobar", Path.ROOT_PATH));
@@ -273,20 +274,20 @@ public class ClientTest {
         }catch(Exception e) {}
     }
 
-    @Test(expected = Exception.class)
-    public void typeException() throws Exception {
+    @Test(expected = NullPointerException.class)
+    public void typeException() {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         client.type( "foobar", Path.of(".foo[1]"));
     }
 
-    @Test(expected = Exception.class)
-    public void type1Exception() throws Exception {
+    @Test(expected = NullPointerException.class)
+    public void type1Exception() {
         client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
         client.type( "foobar", Path.of(".foo[1]"));
     }
 
     @Test
-    public void testMultipleGetAtRootPathAllKeysExist() throws Exception {
+    public void testMultipleGetAtRootPathAllKeysExist() {
         Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
         Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
         Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
@@ -317,7 +318,7 @@ public class ClientTest {
     }
 
     @Test
-    public void testMultipleGetAtRootPathWithMissingKeys() throws Exception {
+    public void testMultipleGetAtRootPathWithMissingKeys() {
         Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
         Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
         Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
@@ -335,7 +336,7 @@ public class ClientTest {
     }
 
     @Test
-    public void testMultipleGetWithPathPathAllKeysExist() throws Exception {
+    public void testMultipleGetWithPathPathAllKeysExist() {
         Baz baz1 = new Baz("quuz1", "grault1", "waldo1");
         Baz baz2 = new Baz("quuz2", "grault2", "waldo2");
         Qux qux1 = new Qux("quux1", "corge1", "garply1", baz1);
@@ -362,13 +363,13 @@ public class ClientTest {
     }
 
     @Test
-    public void testArrayLength() throws Exception {
+    public void testArrayLength() {
       client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
       assertEquals(Long.valueOf(3L), client.arrLen( "foobar", Path.of(".fooArr")));
     }
 
     @Test
-    public void testArrayAppendSameType() throws Exception {
+    public void testArrayAppendSameType() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: ['ello'] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);    
         
@@ -380,7 +381,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayAppendMultipleTypes() throws Exception {
+    public void testArrayAppendMultipleTypes() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: ['ello'] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);    
         
@@ -395,7 +396,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayAppendMultipleTypesWithDeepPath() throws Exception {
+    public void testArrayAppendMultipleTypesWithDeepPath() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: ['ello'] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);    
         
@@ -407,7 +408,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayAppendAgaintsEmptyArray() throws Exception {
+    public void testArrayAppendAgaintsEmptyArray() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: [] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);  
         
@@ -418,8 +419,8 @@ public class ClientTest {
       assertArrayEquals(new String[] {"a", "b", "c"}, array);
     }
     
-    @Test(expected = Exception.class)
-    public void testArrayAppendPathIsNotArray() throws Exception {
+    @Test(expected = JedisDataException.class)
+    public void testArrayAppendPathIsNotArray() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: ['ello'] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);    
         
@@ -428,31 +429,31 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayIndexWithInts() throws Exception {
+    public void testArrayIndexWithInts() {
       client.set( "quxquux", new int[] {8,6,7,5,3,0,9}, Path.ROOT_PATH);
       assertEquals(Long.valueOf(2L), client.arrIndex( "quxquux", Path.ROOT_PATH, 7));
     }
 
     @Test
-    public void testArrayIndexWithStrings() throws Exception {
+    public void testArrayIndexWithStrings() {
       client.set( "quxquux", new String[] {"8","6","7","5","3","0","9"}, Path.ROOT_PATH);
       assertEquals(Long.valueOf(2L), client.arrIndex( "quxquux", Path.ROOT_PATH, "7"));
     }
 
     @Test
-    public void testArrayIndexWithStringsAndPath() throws Exception {
+    public void testArrayIndexWithStringsAndPath() {
       client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
       assertEquals(Long.valueOf(1L), client.arrIndex( "foobar", Path.of(".fooArr"), "b"));
     }
     
-    @Test(expected = Exception.class)
-    public void testArrayIndexNonExistentPath() throws Exception {
+    @Test(expected = JedisDataException.class)
+    public void testArrayIndexNonExistentPath() {
       client.set( "foobar", new FooBarObject(), Path.ROOT_PATH);
       assertEquals(Long.valueOf(1L), client.arrIndex( "foobar", Path.of(".barArr"), "x"));
     }
     
     @Test
-    public void testArrayInsert() throws Exception {
+    public void testArrayInsert() {
       String json = "['hello', 'world', true, 1, 3, null, false]";
       JsonArray jsonArray = new Gson().fromJson(json, JsonArray.class);    
         
@@ -467,7 +468,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayInsertWithNegativeIndex() throws Exception {
+    public void testArrayInsertWithNegativeIndex() {
       String json = "['hello', 'world', true, 1, 3, null, false]";
       JsonArray jsonArray = new Gson().fromJson(json, JsonArray.class);    
         
@@ -479,7 +480,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayPop() throws Exception {
+    public void testArrayPop() {
       client.set( "arr", new int[] {0,1,2,3,4}, Path.ROOT_PATH);
       assertEquals(Long.valueOf(4L), client.arrPop( "arr", Long.class, Path.ROOT_PATH, 4L));
       assertEquals(Long.valueOf(3L), client.arrPop( "arr", Long.class, Path.ROOT_PATH, -1L));
@@ -489,7 +490,7 @@ public class ClientTest {
     }
     
     @Test
-    public void testArrayTrim() throws Exception {
+    public void testArrayTrim() {
       client.set( "arr", new int[] {0,1,2,3,4}, Path.ROOT_PATH);
       assertEquals(Long.valueOf(3L), client.arrTrim( "arr", Path.ROOT_PATH, 1L, 3L));
       
@@ -498,14 +499,14 @@ public class ClientTest {
     }
     
     @Test
-    public void testStringAppend() throws Exception {
+    public void testStringAppend() {
       client.set( "str", "foo", Path.ROOT_PATH);
       assertEquals(Long.valueOf(6L), client.strAppend( "str", Path.ROOT_PATH, "bar"));
       assertEquals("foobar", client.get("str", String.class, Path.ROOT_PATH));
     }
     
     @Test
-    public void testStringLen() throws Exception {
+    public void testStringLen() {
       client.set( "str", "foo", Path.ROOT_PATH);
       assertEquals(Long.valueOf(3L), client.strLen( "str", Path.ROOT_PATH));
     }

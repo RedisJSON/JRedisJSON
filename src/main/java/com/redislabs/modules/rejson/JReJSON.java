@@ -64,12 +64,14 @@ public class JReJSON {
         ARRLEN("JSON.ARRLEN"),
         ARRPOP("JSON.ARRPOP"),
         ARRTRIM("JSON.ARRTRIM");
+
         private final byte[] raw;
 
         Command(String alt) {
             raw = SafeEncoder.encode(alt);
         }
 
+        @Override
         public byte[] getRaw() {
             return raw;
         }
@@ -82,12 +84,14 @@ public class JReJSON {
         DEFAULT(""),
         NOT_EXISTS("NX"),
         MUST_EXIST("XX");
+
         private final byte[] raw;
 
         ExistenceModifier(String alt) {
             raw = SafeEncoder.encode(alt);
         }
 
+        @Override
         public byte[] getRaw() {
             return raw;
         }
@@ -122,22 +126,13 @@ public class JReJSON {
     }
 
     /**
-     *  Helper to check for errors and throw them as an exception
-     * @param str the reply string to "analyze"
-     * @throws RuntimeException
-     */
-    private static void assertReplyNotError(final String str) {
-        if (str.startsWith("-ERR"))
-            throw new RuntimeException(str.substring(5));
-    }
-
-    /**
      * Helper to check for an OK reply
      * @param str the reply string to "scrutinize"
      */
     private static void assertReplyOK(final String str) {
-        if (!str.equals("OK"))
-            throw new RuntimeException(str);
+        if (str == null) {
+            throw new NullPointerException("Null response received.");
+        }
     }
 
     /**
@@ -227,7 +222,7 @@ public class JReJSON {
     		conn.getClient().sendCommand(Command.GET, args);
         	rep = conn.getClient().getBulkReply();
     	}
-    	assertReplyNotError(rep);
+
     	return gson.fromJson(rep, clazz);
     }
 
@@ -356,8 +351,6 @@ public class JReJSON {
         	rep = conn.getClient().getBulkReply();
     	}
 
-        assertReplyNotError(rep);
-
         switch (rep) {
             case "null":
                 return null;
@@ -374,7 +367,7 @@ public class JReJSON {
             case "array":
                 return List.class;
             default:
-                throw new java.lang.RuntimeException(rep);
+                throw new RuntimeException(rep);
         }
     }
 
@@ -425,7 +418,6 @@ public class JReJSON {
         String rep = conn.getClient().getBulkReply();
         conn.close();
 
-        assertReplyNotError(rep);
         return gson.fromJson(rep, Object.class);
     }
 
@@ -492,8 +484,6 @@ public class JReJSON {
         String rep = conn.getClient().getBulkReply();
         conn.close();
 
-        assertReplyNotError(rep);
-
         switch (rep) {
             case "null":
                 return null;
@@ -510,7 +500,7 @@ public class JReJSON {
             case "array":
                 return List.class;
             default:
-                throw new java.lang.RuntimeException(rep);
+                throw new RuntimeException(rep);
         }
     }
 
@@ -533,7 +523,7 @@ public class JReJSON {
     public Long strAppend(String key, Path path, Object... objects) {
         List<byte[]> args = new ArrayList<>();
         args.add(SafeEncoder.encode(key));
-        args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
+        args.add(SafeEncoder.encode(path.toString()));
 
         args.addAll(Arrays.stream(objects) //
                 .map(object -> SafeEncoder.encode(gson.toJson(object))) //
@@ -698,7 +688,7 @@ public class JReJSON {
             conn.getClient().sendCommand(Command.ARRPOP, args.toArray(new byte[args.size()][]));
             rep = conn.getClient().getBulkReply();
         }
-        assertReplyNotError(rep);
+
         return gson.fromJson(rep, clazz);
     }
 
