@@ -100,6 +100,7 @@ public class JReJSON {
     }
 
 	private Pool<Jedis> client;
+	private Jedis jedis;
 
     /**
      * Creates a client to the local machine
@@ -125,6 +126,10 @@ public class JReJSON {
      */
     public JReJSON(Pool<Jedis> jedis) {
         this.client = jedis;
+    }
+    
+    public JReJSON(Jedis jedis) {
+        this.jedis = jedis;
     }
 
     /**
@@ -523,7 +528,7 @@ public class JReJSON {
     }
 
     private Jedis getConnection() {
-        return this.client.getResource();
+        return jedis != null ? jedis : this.client.getResource();
     }
 
     /**
