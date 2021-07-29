@@ -38,9 +38,9 @@ jobs:
       # run tests!
       - run: mvn integration-test
       - run: mvn cobertura:cobertura
-      - run: bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}
+      - run: bash <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov) -t ${CODECOV_TOKEN}
 
-      - run: mvn -s .circleci.settings.xml -DskipTests deploy
+      - run: mvn -s .circleci.settings.xml -DskipTests -Dgpg.skip deploy
 
 workflows:
   version: 2
