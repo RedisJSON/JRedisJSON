@@ -56,11 +56,11 @@ public class ClientTest {
 	@SuppressWarnings("unused")
     private static class IRLObject {
         public String str;
-        public boolean bTrue;
+        public boolean bool;
 
         public IRLObject() {
             this.str = "string";
-            this.bTrue = true;
+            this.bool = true;
         }
     }
 
@@ -161,7 +161,7 @@ public class ClientTest {
     public void basicSetGetShouldSucceed() {
 
         // naive set with a path
-    	client.set("null", null, Path.ROOT_PATH);
+        client.set("null", null, Path.ROOT_PATH);
         assertNull(client.get("null", String.class, Path.ROOT_PATH));
 
         // real scalar value and no path
@@ -229,8 +229,31 @@ public class ClientTest {
         IRLObject obj = new IRLObject();
         client.set( "obj", obj);
         Object expected = g.fromJson(g.toJson(obj), Object.class);
-        assertTrue(expected.equals(client.get( "obj", Object.class, Path.of("bTrue"), Path.of("str"))));
+        assertTrue(expected.equals(client.get( "obj", Object.class, Path.of("bool"), Path.of("str"))));
 
+    }
+
+    @Test
+    public void toggle() {
+
+        IRLObject obj = new IRLObject();
+        client.set( "obj", obj);
+
+        Path pbool = Path.of(".bool");
+        // check initial value
+        assertTrue(client.get("obj", Boolean.class, pbool));
+
+        // true -> false
+        client.toggle("obj", pbool);
+        assertFalse(client.get("obj", Boolean.class, pbool));
+
+        // false -> true
+        client.toggle("obj", pbool);
+        assertTrue(client.get("obj", Boolean.class, pbool));
+
+        // ignore non-boolean field
+        client.toggle("obj", pbool);
+        assertEquals("string", client.get("obj", String.class, Path.of(".str")));
     }
 
     @Test(expected = JedisDataException.class)
