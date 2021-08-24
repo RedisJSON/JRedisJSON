@@ -37,7 +37,19 @@ commands:
               circleci step halt
             fi
 
-  build_all:
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8u171-jdk
+      - image: redislabs/rejson:edge
+        port: 6379:6379
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
     steps:
       - abort_for_docs
       - abort_for_noci
@@ -63,22 +75,6 @@ commands:
       - run: mvn cobertura:cobertura
       - run: bash <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov) -t ${CODECOV_TOKEN}
 
-jobs:
-  build:
-    docker:
-      - image: circleci/openjdk:8u171-jdk
-      - image: redislabs/rejson:edge
-        port: 6379:6379
-
-    working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      MAVEN_OPTS: -Xmx3200m
-
-    steps:
-      - build_all
-
   build-and-publish:
     docker:
       - image: circleci/openjdk:8u171-jdk
@@ -88,7 +84,31 @@ jobs:
       MAVEN_OPTS: -Xmx3200m
 
     steps:
-      - build_all
+      - abort_for_docs
+      - abort_for_noci
+      - early_return_for_forked_pull_requests
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+      # run tests!
+      - run: mvn integration-test
+      - run: mvn cobertura:cobertura
+      - run: bash <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov) -t ${CODECOV_TOKEN}
+
+
       - run: mvn -s .circleci.settings.xml -DskipTests -Dgpg.skip deploy
 
 
