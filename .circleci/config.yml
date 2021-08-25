@@ -77,6 +77,7 @@ jobs:
   build-and-publish:
     docker:
       - image: circleci/openjdk:8u171-jdk
+      - image: redislabs/rejson:edge
 
     environment:
       # Customize the JVM maximum heap limit
