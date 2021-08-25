@@ -392,6 +392,35 @@ public class ClientTest {
     }
 
     @Test
+    public void clearArray() {
+        client.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+
+        Path arrPath = Path.of(".fooArr");
+        assertEquals(Long.valueOf(3L), client.arrLen("foobar", arrPath));
+
+        assertEquals(1L, client.clear("foobar", arrPath));
+        assertEquals(Long.valueOf(0L), client.arrLen("foobar", arrPath));
+
+        // ignore non-array
+        Path strPath = Path.of("foo");
+        assertEquals(0L, client.clear("foobar", strPath));
+        assertEquals("bar", client.get("foobar", String.class, strPath));
+    }
+
+    @Test
+    public void clearObject() {
+        Baz baz = new Baz("quuz", "grault", "waldo");
+        Qux qux = new Qux("quux", "corge", "garply", baz);
+
+        client.set("qux", qux);
+        Path objPath = Path.of("baz");
+        assertEquals(baz, client.get("qux", Baz.class, objPath));
+
+        assertEquals(1L, client.clear("qux", objPath));
+        assertEquals(new Baz(null, null, null), client.get("qux", Baz.class, objPath));
+    }
+
+    @Test
     public void testArrayAppendSameType() {
       String json = "{ a: 'hello', b: [1, 2, 3], c: { d: ['ello'] }}";
       JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);    

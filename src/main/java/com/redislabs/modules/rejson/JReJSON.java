@@ -64,6 +64,7 @@ public class JReJSON {
         ARRLEN("JSON.ARRLEN"),
         ARRPOP("JSON.ARRPOP"),
         ARRTRIM("JSON.ARRTRIM"),
+        CLEAR("JSON.CLEAR"),
         TOGGLE("JSON.TOGGLE");
 
         private final byte[] raw;
@@ -163,7 +164,6 @@ public class JReJSON {
     	return del(key, Path.ROOT_PATH);
     }
 
-
     /**
      * Deletes a path
      * @param key the key name
@@ -179,6 +179,13 @@ public class JReJSON {
     		conn.getClient().sendCommand(Command.DEL, args);
     		return conn.getClient().getIntegerReply();
     	}
+    }
+
+    public long clear(String key, Path path) {
+    	  try (Jedis jedis = getConnection()) {
+    		    jedis.getClient().sendCommand(Command.CLEAR, key, path.toString());
+    		    return jedis.getClient().getIntegerReply();
+    	  }
     }
 
     /**
