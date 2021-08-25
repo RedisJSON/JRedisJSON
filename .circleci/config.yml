@@ -52,7 +52,6 @@ jobs:
     steps:
       - abort_for_docs
       - abort_for_noci
-      - early_return_for_forked_pull_requests
       - checkout
 
       # Download and cache dependencies
@@ -71,6 +70,7 @@ jobs:
 
       # run tests!
       - run: mvn integration-test
+      - early_return_for_forked_pull_requests
       - run: mvn cobertura:cobertura
       - run: bash <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov) -t ${CODECOV_TOKEN}
 
@@ -85,7 +85,6 @@ jobs:
     steps:
       - abort_for_docs
       - abort_for_noci
-      - early_return_for_forked_pull_requests
       - checkout
 
       # Download and cache dependencies
