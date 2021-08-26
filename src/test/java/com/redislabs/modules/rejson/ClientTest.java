@@ -252,8 +252,14 @@ public class ClientTest {
         assertTrue(client.get("obj", Boolean.class, pbool));
 
         // ignore non-boolean field
-        client.toggle("obj", pbool);
-        assertEquals("string", client.get("obj", String.class, Path.of(".str")));
+        Path pstr = Path.of(".str");
+        try {
+            client.toggle("obj", pstr);
+            fail("Path not a bool");
+        } catch (JedisDataException jde) {
+            assertTrue(jde.getMessage().contains("not a bool"));
+        }
+        assertEquals("string", client.get("obj", String.class, pstr));
     }
 
     @Test(expected = JedisDataException.class)
