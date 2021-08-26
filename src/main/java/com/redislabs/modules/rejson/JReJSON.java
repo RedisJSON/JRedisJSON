@@ -64,7 +64,8 @@ public class JReJSON {
         ARRLEN("JSON.ARRLEN"),
         ARRPOP("JSON.ARRPOP"),
         ARRTRIM("JSON.ARRTRIM"),
-        CLEAR("JSON.CLEAR");
+        CLEAR("JSON.CLEAR"),
+        TOGGLE("JSON.TOGGLE");
 
         private final byte[] raw;
 
@@ -327,6 +328,13 @@ public class JReJSON {
 	        status = conn.getClient().getStatusCodeReply();
     	}
         assertReplyOK(status);
+    }
+
+    public void toggle(String key, Path path) {
+        try (Jedis jedis = getConnection()) {
+            jedis.getClient().sendCommand(Command.TOGGLE, key, path.toString());
+            assertReplyOK(jedis.getClient().getStatusCodeReply());
+        }
     }
 
     /**
