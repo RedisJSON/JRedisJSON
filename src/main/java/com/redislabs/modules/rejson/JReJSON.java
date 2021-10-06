@@ -675,6 +675,7 @@ public class JReJSON {
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
      *
+     * @param <T> type of data represented at {@code key}
      * @param key the key of the value
      * @param clazz target class to serialize results
      * @param path the path of the value
@@ -703,6 +704,7 @@ public class JReJSON {
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
      *
+     * @param <T> type of data represented at {@code key}
      * @param key the key of the value
      * @param clazz target class to serialize results
      * @param path the path of the value
@@ -719,6 +721,7 @@ public class JReJSON {
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
      *
+     * @param <T> type of data represented at {@code key}
      * @param key the key of the value
      * @param clazz target class to serialize results
      * @return the popped JSON value.
@@ -730,10 +733,10 @@ public class JReJSON {
     /**
      * Trim an array so that it contains only the specified inclusive range of elements.
      *
-     * This command is extremely forgiving and using it with out of range indexes will not
-     * produce an error. If start is larger than the array's size or start > stop , the result
-     * will be an empty array. If start is < 0 then it will be treated as 0. If stop is larger
-     * than the end of the array, it will be treated like the last element in it.
+     * This command is extremely forgiving and using it with out of range indexes will not produce
+     * an error. If start is larger than the array's size or start &gt; stop, the result will be an
+     * empty array. If start is &lt; 0 then it will be treated as 0. If stop is larger than the end
+     * of the array, it will be treated like the last element in it.
      *
      * @param key the key of the value
      * @param path the path of the value
