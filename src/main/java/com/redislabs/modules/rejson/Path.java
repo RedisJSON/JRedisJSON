@@ -56,12 +56,6 @@ public class Path {
         return strPath;
     }
     
-    /**
-     * Static factory method
-     * 
-     * @param strPath
-     * @return
-     */
     public static Path of(final String strPath) {
         return new Path(strPath);
     }

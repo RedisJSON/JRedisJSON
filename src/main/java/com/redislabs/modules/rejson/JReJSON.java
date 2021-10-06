@@ -190,6 +190,7 @@ public class JReJSON {
 
     /**
      * Gets an object at the root path
+     * @param <T> type of data represented at {@code key}
      * @param key the key name
      * @return the requested object
      */
@@ -199,6 +200,7 @@ public class JReJSON {
 
     /**
      * Gets an object
+     * @param <T> type of data represented at {@code key}
      * @param key the key name
      * @param paths optional one ore more paths in the object
      * @return the requested object
@@ -212,8 +214,9 @@ public class JReJSON {
 
     /**
      * Gets an object
+     * @param <T> type of data represented at {@code key}
      * @param key the key name
-     * @param clazz
+     * @param clazz Class representing {@code T}
      * @param paths optional one ore more paths in the object
      * @return the requested object
      */
@@ -528,8 +531,6 @@ public class JReJSON {
      *
      * Returns the string's new size.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonstrappend}</a>.
-     *
      * @param key the key of the value
      * @param path the path of the value
      * @param objects objects One or more elements to be added to the array
@@ -554,8 +555,6 @@ public class JReJSON {
      * Report the length of the JSON String at path in key.
      * Path defaults to root if not provided.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonstrlen}</a>.
-     *
      * @param key the key of the value
      * @param path the path of the value
      * @return the size of string at path. If the key or path do not exist, null is returned.
@@ -575,8 +574,6 @@ public class JReJSON {
      * Appends elements into the array at path.
      *
      * Returns the array's new size.
-     *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrappend}</a>.
      *
      * @param key the key of the value
      * @param path the path of the value
@@ -605,8 +602,6 @@ public class JReJSON {
      * If the item is not found, it returns -1. If called on a key path that is not
      * an array, it throws an error.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrindex}</a>.
-     *
      * @param key the key of the value
      * @param path the path of the value
      * @param scalar the JSON scalar to search for
@@ -630,8 +625,6 @@ public class JReJSON {
      * Negative index values are interpreted as starting from the end.
      *
      * Returns the array's new size.
-     *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrinsert}</a>.
      *
      * @param key the key of the value
      * @param path the path of the value
@@ -660,8 +653,6 @@ public class JReJSON {
      *
      * If called on a key path that is not an array, it will throw an error.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrlen}</a>.
-     *
      * @param key the key of the value
      * @param path the path of the value
      * @return the size of array at path
@@ -683,8 +674,6 @@ public class JReJSON {
      * path defaults to root if not provided. index is the position in the array to start
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
-     *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
      *
      * @param key the key of the value
      * @param clazz target class to serialize results
@@ -714,8 +703,6 @@ public class JReJSON {
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
-     *
      * @param key the key of the value
      * @param clazz target class to serialize results
      * @param path the path of the value
@@ -732,8 +719,6 @@ public class JReJSON {
      * popping from (defaults to -1, meaning the last element). Out of range indices are
      * rounded to their respective array ends. Popping an empty array yields null.
      *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrpop}</a>.
-     *
      * @param key the key of the value
      * @param clazz target class to serialize results
      * @return the popped JSON value.
@@ -749,8 +734,6 @@ public class JReJSON {
      * produce an error. If start is larger than the array's size or start > stop , the result
      * will be an empty array. If start is < 0 then it will be treated as 0. If stop is larger
      * than the end of the array, it will be treated like the last element in it.
-     *
-     * See <a href="#{@link}">{@link https://oss.redislabs.com/redisjson/commands/#jsonarrtrim}</a>.
      *
      * @param key the key of the value
      * @param path the path of the value
