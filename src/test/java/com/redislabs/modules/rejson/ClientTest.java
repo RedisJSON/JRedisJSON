@@ -46,6 +46,7 @@ import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.GsonBuilder;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
@@ -155,6 +156,16 @@ public class ClientTest {
         // naive set with a path
     	defaultClient.set("null", null, Path.ROOT_PATH);
         assertNull(explicitLocalClient.get("null", String.class, Path.ROOT_PATH));
+    }
+	
+    @Test
+    public void testJedisConstructor() {
+        final JReJSON defaultClient = new JReJSON();
+    	final JReJSON withJedis = new JReJSON(jedis);
+
+        // naive set with a path
+    	defaultClient.set("null", null, Path.ROOT_PATH);
+        assertNull(withJedis.get("null", String.class, Path.ROOT_PATH));
     }
 
     @Test
@@ -567,5 +578,18 @@ public class ClientTest {
     public void testStringLen() {
       client.set( "str", "foo", Path.ROOT_PATH);
       assertEquals(Long.valueOf(3L), client.strLen( "str", Path.ROOT_PATH));
+    }
+	
+    @Test
+    public void testPassingCustomGsonBuilder() {
+      final JReJSON defaultClient = new JReJSON();
+      final JReJSON customizedClient = new JReJSON();
+      final GsonBuilder builder = new GsonBuilder();
+
+      customizedClient.setGsonBuilder(builder);
+
+      // naive set with a path
+      defaultClient.set("null", null, Path.ROOT_PATH);
+      assertNull(customizedClient.get("null", String.class, Path.ROOT_PATH));
     }
 }
