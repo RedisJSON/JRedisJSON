@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -48,7 +49,13 @@ import redis.clients.jedis.util.SafeEncoder;
  */
 public class JReJSON {
 
-    private static final Gson gson = new Gson();
+    private GsonBuilder gsonBuilder = new GsonBuilder();
+    private Gson gson = gsonBuilder.create();
+
+    public void setGsonBuilder(GsonBuilder gsonBuilder) {
+      this.gsonBuilder = gsonBuilder;
+      this.gson = gsonBuilder.create();
+    }
 
     private enum Command implements ProtocolCommand {
         DEL("JSON.DEL"),
@@ -100,6 +107,7 @@ public class JReJSON {
     }
 
 	private Pool<Jedis> client;
+	private Jedis jedis;
 
     /**
      * Creates a client to the local machine
@@ -125,6 +133,10 @@ public class JReJSON {
      */
     public JReJSON(Pool<Jedis> jedis) {
         this.client = jedis;
+    }
+
+    public JReJSON(Jedis jedis) {
+        this.jedis = jedis;
     }
 
     /**
@@ -389,6 +401,8 @@ public class JReJSON {
         }
     }
 
+    private static final Gson staticGson = new Gson();
+
     /**
      * Deletes a path
      * @param conn the Jedis connection
@@ -436,7 +450,7 @@ public class JReJSON {
         String rep = conn.getClient().getBulkReply();
         conn.close();
 
-        return gson.fromJson(rep, Object.class);
+        return staticGson.fromJson(rep, Object.class);
     }
 
     /**
@@ -455,7 +469,7 @@ public class JReJSON {
 
         args.add(SafeEncoder.encode(key));
         args.add(SafeEncoder.encode(getSingleOptionalPath(path).toString()));
-        args.add(SafeEncoder.encode(gson.toJson(object)));
+        args.add(SafeEncoder.encode(staticGson.toJson(object)));
         if (ExistenceModifier.DEFAULT != flag) {
             args.add(flag.getRaw());
         }
@@ -523,7 +537,7 @@ public class JReJSON {
     }
 
     private Jedis getConnection() {
-        return this.client.getResource();
+        return jedis != null ? jedis : this.client.getResource();
     }
 
     /**
