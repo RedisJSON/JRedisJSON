@@ -46,7 +46,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.test.source>8</maven.test.source>
         <maven.test.target>8</maven.test.target>
-        <gson.version>2.8.8</gson.version>
+        <gson.version>2.8.9</gson.version>
         <jedis.version>3.7.1</jedis.version>
         <commons.pool2.version>2.11.1</commons.pool2.version>
     </properties>
