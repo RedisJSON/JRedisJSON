@@ -417,11 +417,15 @@ public class ClientTest {
 
         assertEquals(1L, client.clear("foobar", arrPath));
         assertEquals(Long.valueOf(0L), client.arrLen("foobar", arrPath));
-
-        // ignore non-array
+    }
+	
+    @Test
+    public void clearString() {
+        client.set("foobar", new FooBarObject(), Path.ROOT_PATH);
+	    
         Path strPath = Path.of("foo");
-        assertEquals(0L, client.clear("foobar", strPath));
-        assertEquals("bar", client.get("foobar", String.class, strPath));
+        assertEquals(1L, client.clear("foobar", strPath));
+        assertEquals("", client.get("foobar", String.class, strPath));
     }
 
     @Test
