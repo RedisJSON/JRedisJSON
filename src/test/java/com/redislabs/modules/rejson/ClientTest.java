@@ -423,7 +423,7 @@ public class ClientTest {
     public void clearString() {
         client.set("foobar", new FooBarObject(), Path.ROOT_PATH);
 	    
-	Path strPath = Path.of("foo");
+        Path strPath = Path.of("foo");
         assertEquals(1L, client.clear("foobar", strPath));
         assertEquals("", client.get("foobar", String.class, strPath));
     }
