@@ -17,6 +17,10 @@
 
 A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
+## Deprecation notice
+
+As of [Jedis 4.0.0](https://github.com/redis/jedis) this library is deprecated. Its features have been merged into Jedis. Please either install it from [maven](https://mvnrepository.com/artifact/redis.clients/jedis) or [the repo](https://github.com/redis/jedis).
+
 ## Overview 
 
 This client provides access to RedisJSON's Redis API, and provides back-and-forth serialization between Java's and its objects.
