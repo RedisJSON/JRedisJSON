@@ -33,7 +33,7 @@ package com.redislabs.modules.rejson;
  */
 public class Path {
 	
-	public static final Path ROOT_PATH = new Path(".");
+    public static final Path ROOT_PATH = new Path(".");
 	
     private final String strPath;
 
