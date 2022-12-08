@@ -1,5 +1,4 @@
 [![license](https://img.shields.io/github/license/RedisJSON/jredisjson.svg)](https://github.com/RedisJSON/JRedisJSON/blob/master/LICENSE)
-[![CircleCI](https://circleci.com/gh/RedisJSON/JRedisJSON/tree/master.svg?style=svg)](https://circleci.com/gh/RedisJSON/JRedisJSON/tree/master)
 [![GitHub issues](https://img.shields.io/github/release/RedisJSON/JRedisJSON.svg)](https://github.com/RedisJSON/JRedisJSON/releases/latest)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redislabs/jrejson)
 [![Javadocs](https://www.javadoc.io/badge/com.redislabs/jrejson.svg)](https://www.javadoc.io/doc/com.redislabs/jrejson)
@@ -13,7 +12,7 @@
 
 [![Forum](https://img.shields.io/badge/Forum-RedisJSON-blue)](https://forum.redislabs.com/c/modules/redisjson)
 [![Discord](https://img.shields.io/discord/697882427875393627?style=flat-square)](https://discord.gg/QUkjSsk)
-    
+
 
 A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
@@ -21,11 +20,11 @@ A Java Client Library for [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 
 As of [Jedis 4.0.0](https://github.com/redis/jedis) this library is deprecated. It's features have been merged into Jedis. Please either install it from [maven](https://mvnrepository.com/artifact/redis.clients/jedis) or [the repo](https://github.com/redis/jedis).
 
-## Overview 
+## Overview
 
 This client provides access to RedisJSON's Redis API, and provides back-and-forth serialization between Java's and its objects.
 
-This project is currently WIP and the interface may change. Also note that only the core RedisJSON commands are supported at the moment. 
+This project is currently WIP and the interface may change. Also note that only the core RedisJSON commands are supported at the moment.
 
 
 
@@ -72,7 +71,7 @@ and
 
 ## Usage example
 
-```java  
+```java
 import redis.clients.jedis.Jedis;
 import com.redislabs.modules.rejson.JReJSON;
 
